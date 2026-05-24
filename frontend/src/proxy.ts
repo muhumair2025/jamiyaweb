@@ -65,6 +65,15 @@ function extractTenantSubdomain(host: string | null): string | null {
 }
 
 export function proxy(request: NextRequest): NextResponse | undefined {
+  const pathname = request.nextUrl.pathname;
+
+  // Builder iframe target lives at /builder-preview/... on the main host —
+  // it must NOT be prefixed with a locale by next-intl middleware. Pass it
+  // straight through.
+  if (pathname.startsWith("/builder-preview/")) {
+    return undefined;
+  }
+
   const subdomain = extractTenantSubdomain(request.headers.get("host"));
 
   if (subdomain) {
