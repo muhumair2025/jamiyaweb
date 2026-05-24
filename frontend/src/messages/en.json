@@ -1,0 +1,567 @@
+{
+  "brand": {
+    "name": "JamiyaWeb",
+    "tagline": "Beautiful Islamic websites in minutes"
+  },
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "templates": "Templates",
+    "pricing": "Pricing",
+    "contact": "Contact",
+    "signIn": "Sign in",
+    "getStarted": "Get started"
+  },
+  "footer": {
+    "tagline": "A controlled theme engine for Jamiya, scholar and welfare websites.",
+    "product": "Product",
+    "company": "Company",
+    "resources": "Resources",
+    "about": "About",
+    "blog": "Blog",
+    "docs": "Documentation",
+    "support": "Support",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "rights": "All rights reserved.",
+    "newsletterTitle": "Stay in the loop",
+    "newsletterDesc": "Monthly notes on Islamic web design, new templates and product updates.",
+    "newsletterPlaceholder": "you@madrasah.com",
+    "newsletterCta": "Subscribe"
+  },
+  "home": {
+    "heroEyebrowDot": "New",
+    "heroEyebrow": "Templates v2 — built for scholars",
+    "heroTitle": "Beautiful Islamic websites,",
+    "heroTitleAccent": "without the dev work.",
+    "heroSubtitle": "JamiyaWeb is a focused website builder for Jamiyas, scholars and welfare trusts. Pick a hand-crafted theme, customise without code, publish on your domain.",
+    "heroCtaPrimary": "Start free 14-day trial",
+    "heroCtaBadge": "14 days free",
+    "heroCtaSecondary": "See live templates",
+    "heroNote": "Free forever plan · Custom domain on Growth",
+    "heroFloatingChip": "One place to manage all your work",
+    "mockup": {
+      "url": "jamiya-arabia.jamiyaweb.com",
+      "heroTitle": "جامعة العربية",
+      "heroSub": "A 60-year tradition of Islamic scholarship",
+      "donateCta": "Support our students",
+      "studentsLabel": "Students",
+      "scholarsLabel": "Scholars",
+      "yearsLabel": "Years"
+    },
+    "trustedBy": "Trusted by 200+ Jamiyas, scholars and welfare trusts",
+    "featuresEyebrow": "What you get",
+    "featuresTitle": "Everything a Jamiya needs.",
+    "featuresTitleAccent": "Nothing it doesn't.",
+    "featuresSubtitle": "A focused toolkit — not a generic page builder bolted onto an Islamic theme.",
+    "bento": {
+      "themesTitle": "Hand-crafted Islamic themes",
+      "themesDesc": "Every theme is designed for a specific need — madrasah, scholar portfolio, welfare trust or mosque.",
+      "builderTitle": "Drag, drop, publish",
+      "builderDesc": "Rearrange sections live without touching code.",
+      "rtlTitle": "First-class Arabic & Urdu",
+      "rtlDesc": "Tajawal & Naskh typography, RTL layouts and bilingual switcher built-in.",
+      "donationTitle": "Donation built-in",
+      "donationDesc": "Accept zakat, sadaqah and campaign donations from day one.",
+      "domainTitle": "Custom domain",
+      "domainDesc": "Connect your domain and SSL is handled automatically."
+    },
+    "stepsEyebrow": "How it works",
+    "stepsTitle": "From signup to published in under 10 minutes.",
+    "steps": {
+      "one": {
+        "n": "01",
+        "t": "Pick your website type",
+        "d": "Jamiya, scholar, welfare trust or mosque — we tailor the experience around it."
+      },
+      "two": {
+        "n": "02",
+        "t": "Choose a theme",
+        "d": "Browse hand-crafted themes built specifically for your kind of Islamic institution."
+      },
+      "three": {
+        "n": "03",
+        "t": "Customise without code",
+        "d": "Edit text, swap images and rearrange sections — see changes live in the preview."
+      },
+      "four": {
+        "n": "04",
+        "t": "Publish on your domain",
+        "d": "Go live in one click on a free subdomain, or connect your own when you’re ready."
+      }
+    },
+    "testimonialsEyebrow": "From the Ummah",
+    "testimonialsTitle": "Teachers, scholars and trustees — in their words.",
+    "testimonials": [
+      {
+        "quote": "We had a website live within an afternoon. Donations started coming in the same week, masha’Allah.",
+        "name": "Mufti Suhaib Ahmad",
+        "role": "Director, Jamiya Arabia"
+      },
+      {
+        "quote": "The Arabic typography is the best I’ve seen on any builder. Finally something built with us in mind.",
+        "name": "Sheikh Yusuf Al‑Rahmani",
+        "role": "Scholar"
+      },
+      {
+        "quote": "We replaced a $4,000 custom website with JamiyaWeb. The team can update it without calling a developer.",
+        "name": "Aisha Khan",
+        "role": "Trustee, Rahmah Welfare"
+      }
+    ],
+    "faqEyebrow": "Frequently asked",
+    "faqTitle": "Answers, in case you were wondering.",
+    "faq": [
+      {
+        "q": "Is there really a free plan?",
+        "a": "Yes. The Free plan gives you a full Jamiya website on a free .jamiyaweb.com subdomain. No card required."
+      },
+      {
+        "q": "Can I use my own domain?",
+        "a": "Yes. The Growth plan lets you connect any domain you own. We handle SSL automatically."
+      },
+      {
+        "q": "Does it support Arabic and Urdu?",
+        "a": "Of course. RTL layouts, Tajawal Arabic typography and a bilingual switcher are built into every theme."
+      },
+      {
+        "q": "Can I accept donations?",
+        "a": "Yes, on the Growth plan and above. We support one-time donations and recurring zakat campaigns."
+      },
+      {
+        "q": "Will my site be fast?",
+        "a": "Every site runs on a global CDN with images and assets optimised automatically."
+      }
+    ],
+    "ctaTitle": "Build a website your Jamiya is proud of.",
+    "ctaSubtitle": "Start with a free template today. Connect a custom domain when you’re ready.",
+    "ctaButton": "Create your website",
+    "ctaSecondary": "Talk to us",
+    "techStack": {
+      "title": "Built on proven open-source technologies",
+      "subtitle": "Stable, fast and battle-tested — so your Jamiya never goes down.",
+      "caption": "Hosted on Cloudflare + scalable cloud infrastructure"
+    }
+  },
+  "features": {
+    "eyebrow": "Features",
+    "title": "Designed for the Ummah,",
+    "titleAccent": "engineered to last.",
+    "subtitle": "Every feature exists because a real Jamiya, scholar or trust asked for it. Nothing here is filler.",
+    "groups": {
+      "design": {
+        "tag": "Design",
+        "title": "Themes that feel made, not generated.",
+        "desc": "Hand-crafted, Islamic‑first themes with Arabic and Urdu typography baked in. Edit colours, fonts and the entire layout without breaking the design.",
+        "bullets": [
+          "Tajawal & Naskh Arabic typography",
+          "RTL‑first layouts, not retrofitted",
+          "Tasteful Islamic motifs, never gaudy"
+        ]
+      },
+      "builder": {
+        "tag": "Builder",
+        "title": "Drag, drop, publish.",
+        "desc": "Visual editor with a live preview. Rearrange hero, donation, scholar and class sections without writing a single line of code.",
+        "bullets": [
+          "Live preview on every change",
+          "Section schema validation — nothing breaks",
+          "Undo, redo and version history"
+        ]
+      },
+      "content": {
+        "tag": "Content",
+        "title": "Built for Islamic content.",
+        "desc": "Pre-built sections for donations, fatwas, books, videos and classes. Not a generic page builder — a focused toolkit.",
+        "bullets": [
+          "Searchable fatwa archive",
+          "Book and video library",
+          "Class enrolment and scheduling"
+        ]
+      },
+      "infra": {
+        "tag": "Infrastructure",
+        "title": "Hosting, domain, SSL — handled.",
+        "desc": "Your site runs on a global CDN. SSL is provisioned automatically. Bring your domain or use a free subdomain.",
+        "bullets": [
+          "One‑click custom domain",
+          "Automatic SSL renewal",
+          "99.9% uptime SLA on paid plans"
+        ]
+      }
+    }
+  },
+  "templates": {
+    "eyebrow": "Templates",
+    "title": "Templates for every kind of",
+    "titleAccent": "Islamic website.",
+    "subtitle": "Pick a starting point and customise. Every template is built on the JamiyaWeb engine.",
+    "categories": {
+      "all": "All",
+      "jamiya": "Jamiya",
+      "scholar": "Scholar",
+      "welfare": "Welfare",
+      "mosque": "Mosque"
+    },
+    "preview": "Preview",
+    "useTemplate": "Use template",
+    "newBadge": "New",
+    "items": {
+      "modernJamiya": {
+        "name": "Modern Jamiya",
+        "desc": "Clean, calm and academic — perfect for traditional madrasahs."
+      },
+      "scholarPortfolio": {
+        "name": "Scholar Portfolio",
+        "desc": "Showcase fatwas, books and lectures for individual scholars."
+      },
+      "welfareTrust": {
+        "name": "Welfare Trust",
+        "desc": "Donation-focused layout with campaigns and impact stories."
+      },
+      "mosqueCommunity": {
+        "name": "Mosque Community",
+        "desc": "Prayer times, events and donations for neighbourhood mosques."
+      },
+      "darulIfta": {
+        "name": "Darul Ifta",
+        "desc": "Searchable fatwa archive with multi-language support."
+      },
+      "quranAcademy": {
+        "name": "Quran Academy",
+        "desc": "Online Quran classes with enrolment and class scheduling."
+      }
+    }
+  },
+  "pricing": {
+    "eyebrow": "Pricing",
+    "title": "Simple pricing,",
+    "titleAccent": "honest defaults.",
+    "subtitle": "Start free. Upgrade only when you need a custom domain or more advanced features.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save": "Save 20%",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "mostPopular": "Most popular",
+    "guarantee": "30-day money-back guarantee. Cancel anytime, no questions asked.",
+    "tiers": {
+      "free": {
+        "name": "Free",
+        "monthly": "$0",
+        "yearly": "$0",
+        "desc": "Get a Jamiya website online with a free subdomain.",
+        "cta": "Start free",
+        "features": [
+          "Free .jamiyaweb.com subdomain",
+          "1 website",
+          "All premium themes",
+          "Drag & drop builder",
+          "Community support"
+        ]
+      },
+      "growth": {
+        "name": "Growth",
+        "monthly": "$12",
+        "yearly": "$115",
+        "desc": "For growing Jamiyas and scholars who need a custom domain.",
+        "cta": "Start Growth",
+        "features": [
+          "Custom domain + SSL",
+          "Remove JamiyaWeb branding",
+          "Donation module",
+          "Fatwa archive",
+          "Priority email support",
+          "Weekly automatic backups"
+        ]
+      },
+      "institution": {
+        "name": "Institution",
+        "monthly": "$39",
+        "yearly": "$375",
+        "desc": "Full toolkit for established institutions and welfare trusts.",
+        "cta": "Talk to us",
+        "features": [
+          "Everything in Growth",
+          "Multi-language site (Arabic, Urdu, English)",
+          "Online classes module",
+          "Advanced donation campaigns",
+          "Dedicated onboarding call",
+          "99.9% uptime SLA"
+        ]
+      }
+    },
+    "faqTitle": "Pricing questions",
+    "faq": [
+      {
+        "q": "Can I switch plans later?",
+        "a": "Yes. Upgrade or downgrade at any time — you only pay the difference, prorated."
+      },
+      {
+        "q": "Do you offer discounts for non‑profits?",
+        "a": "Yes. Registered Islamic charities and madrasahs get a 30% discount on Growth and Institution. Reach out via the contact page."
+      },
+      {
+        "q": "What payment methods do you accept?",
+        "a": "All major cards via Stripe. Bank transfer is available on the Institution plan."
+      }
+    ]
+  },
+  "auth": {
+    "common": {
+      "backToSite": "Back to site",
+      "or": "or",
+      "loading": "Please wait…"
+    },
+    "panel": {
+      "quote": "We had our madrasah website live within an afternoon. Donations started the same week, masha'Allah.",
+      "quoteAuthor": "Mufti Suhaib Ahmad",
+      "quoteRole": "Director, Jamiya Arabia",
+      "stat1": "200+",
+      "stat1Label": "Jamiyas online",
+      "stat2": "$120k",
+      "stat2Label": "donations raised",
+      "stat3": "8 min",
+      "stat3Label": "avg. time to launch"
+    },
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to manage your JamiyaWeb sites.",
+      "email": "Email address",
+      "emailPlaceholder": "you@madrasah.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••",
+      "remember": "Keep me signed in",
+      "forgot": "Forgot password?",
+      "submit": "Sign in",
+      "noAccount": "Don't have an account?",
+      "signUp": "Create one",
+      "resetSuccess": "Password updated. Sign in with your new password."
+    },
+    "register": {
+      "title": "Create your account",
+      "subtitle": "Start building your Islamic website — no credit card needed.",
+      "name": "Full name",
+      "namePlaceholder": "Abdullah Ahmad",
+      "organization": "Organization name",
+      "organizationPlaceholder": "Jamiya Al-Falah",
+      "email": "Email address",
+      "emailPlaceholder": "you@madrasah.com",
+      "phone": "Phone number",
+      "phonePlaceholder": "300 1234567",
+      "country": "Country",
+      "countryPlaceholder": "Select your country",
+      "password": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "passwordHint": "Use at least 8 characters with a mix of letters and numbers.",
+      "terms": "By creating an account you agree to our Terms and Privacy Policy.",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "forgot": {
+      "title": "Forgot your password?",
+      "subtitle": "Enter your email and we'll send you a reset link.",
+      "email": "Email address",
+      "emailPlaceholder": "you@madrasah.com",
+      "submit": "Send reset link",
+      "back": "Back to sign in"
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "subtitle": "Pick something strong you'll remember.",
+      "email": "Email address",
+      "password": "New password",
+      "confirmPassword": "Confirm new password",
+      "submit": "Reset password"
+    },
+    "verify": {
+      "title": "Verify your email",
+      "subtitle": "We've sent a verification link to {email}. Click it to verify your account.",
+      "verifiedTitle": "Email verified",
+      "verifiedSubtitle": "Thanks — your email is verified. You can now publish your website.",
+      "resend": "Resend verification email",
+      "goToDashboard": "Go to dashboard"
+    }
+  },
+  "onboarding": {
+    "steps": {
+      "websiteType": "Pick type",
+      "theme": "Choose theme",
+      "customize": "Customise"
+    },
+    "rightLabel": "Step {current} of {total}",
+    "websiteType": {
+      "eyebrow": "Step 1 of 3",
+      "title": "What are you building?",
+      "subtitle": "We'll tailor your templates and dashboard around it. You can change this later in settings.",
+      "submit": "Continue",
+      "skip": "Skip for now",
+      "options": {
+        "welfare": {
+          "title": "Welfare trust",
+          "desc": "A donation-focused site for a charity, trust or relief organisation. Campaigns, zakat collection and impact stories."
+        },
+        "scholar": {
+          "title": "Scholar / Madrasah",
+          "desc": "A site for a scholar, mufti or madrasah. Fatwa archive, books, lectures and class enrolment."
+        }
+      }
+    },
+    "theme": {
+      "eyebrow": "Step 2 of 3",
+      "title": "Pick a starting theme",
+      "subtitle": "Each theme is designed for your kind of website. You can change colours, typography and content in the next step.",
+      "submit": "Continue",
+      "back": "Back",
+      "selectedLabel": "Selected",
+      "themes": {
+        "compassion": {
+          "name": "Compassion",
+          "tagline": "Donation-first layout with campaign hero & impact stats."
+        },
+        "mercy": {
+          "name": "Mercy",
+          "tagline": "Calm, professional charity site with zakat calculator."
+        },
+        "hope": {
+          "name": "Hope",
+          "tagline": "Story-led layout with photo essays from the field."
+        },
+        "unity": {
+          "name": "Unity",
+          "tagline": "Community-focused layout with volunteer signup."
+        },
+        "wisdom": {
+          "name": "Wisdom",
+          "tagline": "Academic, calm layout for fatwas, books and lectures."
+        },
+        "light": {
+          "name": "Light",
+          "tagline": "Minimal scholar portfolio — type-first design."
+        },
+        "madinah": {
+          "name": "Madinah",
+          "tagline": "Traditional madrasah layout with class enrolment."
+        },
+        "hikmah": {
+          "name": "Hikmah",
+          "tagline": "Modern academic layout with Quran reader integration."
+        }
+      }
+    },
+    "customize": {
+      "eyebrow": "Step 3 of 3 — almost done",
+      "title": "Make it yours",
+      "subtitle": "These choices set the starting look of your site. Everything is editable later in the builder.",
+      "submit": "Finish & go to dashboard",
+      "back": "Back",
+
+      "siteNameLabel": "Site name",
+      "siteNameHint": "Shown in the header and browser tab. We've pre-filled it from your registration — change it if you want.",
+      "siteNamePlaceholder": "e.g. Jamiya Arabia",
+
+      "primaryColorLabel": "Primary colour",
+      "primaryColorHint": "Buttons, links and the most prominent accents.",
+      "accentColorLabel": "Accent colour",
+      "accentColorHint": "Badges, highlights and secondary CTAs.",
+      "customColorLabel": "Custom",
+      "backgroundToneLabel": "Background tone",
+      "backgroundToneHint": "The base background of every page.",
+
+      "colors": {
+        "teal": "Teal",
+        "emerald": "Emerald",
+        "navy": "Navy",
+        "brown": "Brown",
+        "plum": "Plum",
+        "charcoal": "Charcoal",
+        "gold": "Gold",
+        "amber": "Amber",
+        "coral": "Coral",
+        "sky": "Sky",
+        "rose": "Rose",
+        "mint": "Mint",
+        "paper": "Paper",
+        "snow": "Snow",
+        "mist": "Mist",
+        "sand": "Sand"
+      },
+
+      "typographyLabel": "Typography style",
+      "typographyHint": "Each card previews in its actual font.",
+      "typography": {
+        "modern": {
+          "name": "Modern",
+          "desc": "Clean, geometric sans-serif. Best for younger audiences."
+        },
+        "classical": {
+          "name": "Classical",
+          "desc": "Refined Playfair serif headings. Best for scholarly content."
+        },
+        "minimal": {
+          "name": "Minimal",
+          "desc": "Quiet Space Grotesk. Lots of white space."
+        },
+        "editorial": {
+          "name": "Editorial",
+          "desc": "Crimson Pro — old-style serif with literary feel."
+        },
+        "display": {
+          "name": "Display",
+          "desc": "Fraunces — bold variable serif for impact."
+        }
+      },
+
+      "languagesLabel": "Site languages",
+      "languagesHint": "Pick one or more. We'll add the language switcher automatically.",
+      "languages": {
+        "en": "English",
+        "ar": "Arabic"
+      },
+
+      "taglineLabel": "One-sentence tagline (optional)",
+      "taglinePlaceholder": "e.g. Sixty years of Islamic scholarship",
+
+      "logoLabel": "Logo (optional)",
+      "logoHint": "PNG, JPG or SVG up to 2 MB. Appears in the navbar and footer.",
+      "logoUpload": "Choose file",
+      "logoChange": "Change",
+      "logoRemove": "Remove",
+
+      "faviconLabel": "Favicon (optional)",
+      "faviconHint": "Square image up to 512 KB — shown in the browser tab. 192×192 PNG works best.",
+      "faviconUpload": "Choose file",
+
+      "donationsLabel": "Enable donations module",
+      "donationsHint": "Accept zakat, sadaqah and campaign donations on your site."
+    }
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "title": "Let’s build it together.",
+    "subtitle": "Have a question about JamiyaWeb? We usually reply within one working day, in shaa Allah.",
+    "form": {
+      "name": "Your name",
+      "namePlaceholder": "Abdullah Ahmad",
+      "email": "Email address",
+      "emailPlaceholder": "you@madrasah.com",
+      "subject": "Subject",
+      "subjectPlaceholder": "How can we help?",
+      "message": "Message",
+      "messagePlaceholder": "Tell us about your Jamiya or welfare trust…",
+      "submit": "Send message",
+      "consent": "We’ll only use your details to reply. No spam, ever."
+    },
+    "info": {
+      "emailLabel": "General",
+      "email": "hello@jamiyaweb.com",
+      "supportLabel": "Support",
+      "support": "support@jamiyaweb.com",
+      "locationLabel": "Based in",
+      "location": "Karachi, Pakistan",
+      "hoursLabel": "Reply within",
+      "hours": "1 working day"
+    }
+  }
+}

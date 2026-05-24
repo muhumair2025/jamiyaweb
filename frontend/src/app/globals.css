@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+:root {
+  /* Surfaces */
+  --background: #fbfaf7;
+  --surface: #ffffff;
+  --surface-elev: #ffffff;
+  --foreground: #0c1f1c;
+  --foreground-soft: #2a3d3a;
+
+  /* Brand — deep teal */
+  --brand-teal: #20665c;
+  --brand-teal-50: #f0f7f5;
+  --brand-teal-100: #d6ebe5;
+  --brand-teal-200: #afd6cb;
+  --brand-teal-300: #7eb8aa;
+  --brand-teal-500: #20665c;
+  --brand-teal-600: #1a544b;
+  --brand-teal-700: #14423b;
+  --brand-teal-800: #0e312c;
+  --brand-teal-900: #081e1b;
+
+  /* Brand — antique gold */
+  --brand-gold: #c18f2c;
+  --brand-gold-50: #fbf6e9;
+  --brand-gold-100: #f4e7c0;
+  --brand-gold-200: #ebd28a;
+  --brand-gold-500: #c18f2c;
+  --brand-gold-600: #a07724;
+  --brand-gold-700: #7d5d1c;
+
+  /* Neutrals */
+  --muted: #f3f0ea;
+  --muted-foreground: #5e6f6c;
+  --border: #e9e5dc;
+  --border-strong: #d9d3c5;
+  --ring: #20665c;
+
+  /* Shadows */
+  --shadow-soft: 0 1px 2px rgba(12, 31, 28, 0.04), 0 1px 1px rgba(12, 31, 28, 0.03);
+  --shadow-card: 0 10px 30px -12px rgba(12, 31, 28, 0.18), 0 2px 6px rgba(12, 31, 28, 0.05);
+  --shadow-elevated: 0 24px 60px -20px rgba(12, 31, 28, 0.25);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-elev: var(--surface-elev);
+  --color-foreground: var(--foreground);
+  --color-foreground-soft: var(--foreground-soft);
+
+  --color-brand: var(--brand-teal);
+  --color-brand-50: var(--brand-teal-50);
+  --color-brand-100: var(--brand-teal-100);
+  --color-brand-200: var(--brand-teal-200);
+  --color-brand-300: var(--brand-teal-300);
+  --color-brand-500: var(--brand-teal-500);
+  --color-brand-600: var(--brand-teal-600);
+  --color-brand-700: var(--brand-teal-700);
+  --color-brand-800: var(--brand-teal-800);
+  --color-brand-900: var(--brand-teal-900);
+
+  --color-gold: var(--brand-gold);
+  --color-gold-50: var(--brand-gold-50);
+  --color-gold-100: var(--brand-gold-100);
+  --color-gold-200: var(--brand-gold-200);
+  --color-gold-500: var(--brand-gold-500);
+  --color-gold-600: var(--brand-gold-600);
+  --color-gold-700: var(--brand-gold-700);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-arabic: var(--font-tajawal);
+
+  --shadow-soft: var(--shadow-soft);
+  --shadow-card: var(--shadow-card);
+  --shadow-elevated: var(--shadow-elevated);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+}
+
+html[dir="rtl"] body,
+html[dir="rtl"] .font-arabic-auto {
+  font-family: var(--font-arabic), system-ui, sans-serif;
+  letter-spacing: 0;
+}
+
+/* Subtle paper-grain texture for premium feel */
+.bg-paper {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(12, 31, 28, 0.035) 1px, transparent 0);
+  background-size: 22px 22px;
+}
+
+/* Decorative arabesque pattern using SVG mask */
+.bg-arabesque {
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80' fill='none'%3E%3Cpath d='M40 0L46 34L80 40L46 46L40 80L34 46L0 40L34 34L40 0Z' fill='%2320665c' fill-opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 80px 80px;
+}
+
+/* Marquee */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 35s linear infinite;
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: none;
+}
+
+/* Smooth scrolling */
+html { scroll-behavior: smooth; }
+
+/* Selection */
+::selection {
+  background: var(--brand-teal-100);
+  color: var(--brand-teal-900);
+}

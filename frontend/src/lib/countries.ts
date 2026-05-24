@@ -1,0 +1,18 @@
+export const COUNTRIES: { value: string; label: string }[] = [
+  { value: "PK", label: "Pakistan" },
+  { value: "IN", label: "India" },
+  { value: "BD", label: "Bangladesh" },
+  { value: "ID", label: "Indonesia" },
+  { value: "SA", label: "Saudi Arabia" },
+  { value: "AE", label: "United Arab Emirates" },
+  { value: "EG", label: "Egypt" },
+  { value: "TR", label: "Türkiye" },
+  { value: "MY", label: "Malaysia" },
+  { value: "GB", label: "United Kingdom" },
+  { value: "US", label: "United States" },
+  { value: "CA", label: "Canada" },
+  { value: "AU", label: "Australia" },
+  { value: "ZA", label: "South Africa" },
+  { value: "NG", label: "Nigeria" },
+  { value: "OTHER", label: "Other" },
+];
