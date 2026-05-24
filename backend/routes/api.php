@@ -1,11 +1,28 @@
 <?php
 
+use App\Http\Controllers\Api\PageController;
+use App\Http\Controllers\Api\PublicSiteController;
+use App\Http\Controllers\Api\SectionController;
+use App\Http\Controllers\Api\ThemeController;
+use App\Http\Controllers\Api\WebsiteController;
 use App\Http\Controllers\OnboardingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__.'/auth.php';
 
+// ─── Public engine reads (no auth required — needed for tenant rendering) ──
+Route::get('/themes', [ThemeController::class, 'index']);
+Route::get('/themes/{slug}', [ThemeController::class, 'show']);
+Route::get('/sections', [SectionController::class, 'index']);
+Route::get('/sections/{slug}', [SectionController::class, 'show']);
+
+// ─── Public tenant rendering ────────────────────────────────────────────
+// Draft sites/pages are visible only when the request carries an owner token.
+Route::get('/public/sites/by-subdomain/{subdomain}', [PublicSiteController::class, 'show']);
+Route::get('/public/sites/by-subdomain/{subdomain}/pages/{slug}', [PublicSiteController::class, 'showPage']);
+
+// ─── Authenticated routes ─────────────────────────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', fn (Request $request) => $request->user()->only([
         'id', 'name', 'organization_name', 'site_name', 'email', 'phone',
@@ -15,7 +32,17 @@ Route::middleware('auth:sanctum')->group(function () {
         'onboarding_completed_at', 'email_verified_at',
     ]));
 
+    // Onboarding
     Route::post('/onboarding/website-type', [OnboardingController::class, 'setWebsiteType']);
     Route::post('/onboarding/theme', [OnboardingController::class, 'setTheme']);
     Route::post('/onboarding/customize', [OnboardingController::class, 'setCustomization']);
+
+    // Websites (one per user in MVP)
+    Route::get('/websites/me', [WebsiteController::class, 'me']);
+    Route::post('/websites', [WebsiteController::class, 'store']);
+
+    // Pages (scoped to a website)
+    Route::get('/websites/{website}/pages', [PageController::class, 'index']);
+    Route::get('/websites/{website}/pages/{slug}', [PageController::class, 'show']);
+    Route::patch('/websites/{website}/pages/{slug}', [PageController::class, 'update']);
 });

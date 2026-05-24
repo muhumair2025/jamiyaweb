@@ -384,6 +384,92 @@
       "goToDashboard": "Go to dashboard"
     }
   },
+  "dashboard": {
+    "common": {
+      "signOut": "Sign out",
+      "help": "Help & docs",
+      "search": "Search…",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "viewLive": "View live",
+      "editWebsite": "Edit website",
+      "comingSoon": "Coming soon",
+      "comingSoonHint": "This area is still in development. It will be available soon, in shaa Allah."
+    },
+    "groups": {
+      "main": "Main",
+      "content": "Content",
+      "design": "Design",
+      "site": "Site",
+      "account": "Account"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "builder": "Builder",
+      "pages": "Pages",
+      "posts": "Posts",
+      "media": "Media library",
+      "theme": "Theme",
+      "sections": "Sections",
+      "seo": "SEO",
+      "domain": "Domain",
+      "languages": "Languages",
+      "settings": "Settings",
+      "billing": "Billing",
+      "team": "Team"
+    },
+    "pages": {
+      "dashboard": {
+        "eyebrow": "Dashboard",
+        "title": "Assalamu alaikum, {name}",
+        "subtitle": "{site} is ready. Edit content, preview live, or publish when you're set."
+      },
+      "pagesIndex": {
+        "title": "Pages",
+        "desc": "Create and manage every page of your site. Home, About, Contact, custom pages — all driven by the engine."
+      },
+      "posts": {
+        "title": "Posts",
+        "desc": "Publish fatwas, blog posts, books and videos. Searchable, categorisable, and powered by the same section system."
+      },
+      "media": {
+        "title": "Media library",
+        "desc": "Upload, organise and serve images, videos and PDFs. Backed by Cloudflare R2 for fast global delivery."
+      },
+      "theme": {
+        "title": "Theme",
+        "desc": "Switch themes, tweak colours, fonts and radii. Every change preserves your content."
+      },
+      "sections": {
+        "title": "Sections",
+        "desc": "Browse and add sections from the catalogue. Each section is a self-contained block."
+      },
+      "seo": {
+        "title": "SEO",
+        "desc": "Meta titles, descriptions, social cards, robots.txt and sitemap.xml."
+      },
+      "domain": {
+        "title": "Domain",
+        "desc": "Use your free .jamiyaweb.com subdomain, or connect a custom domain. SSL handled automatically."
+      },
+      "languages": {
+        "title": "Languages",
+        "desc": "Choose which languages your site is published in. English, Arabic — switch on, switch off."
+      },
+      "settings": {
+        "title": "Settings",
+        "desc": "General settings — site name, tagline, contact details, donations toggle."
+      },
+      "billing": {
+        "title": "Billing",
+        "desc": "Manage your plan, billing details and invoices. Upgrade to unlock custom domain, donations and more."
+      },
+      "team": {
+        "title": "Team",
+        "desc": "Invite colleagues — scholars, fundraisers, content editors — with the right access level."
+      }
+    }
+  },
   "onboarding": {
     "steps": {
       "websiteType": "Pick type",

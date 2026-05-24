@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\WebsiteCreator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class OnboardingController extends Controller
 {
+    public function __construct(private WebsiteCreator $websites)
+    {
+    }
+
     /**
      * Shape of the user returned to the SPA after each onboarding step.
      */
@@ -88,6 +93,20 @@ class OnboardingController extends Controller
         $user->onboarding_completed_at = now();
         $user->save();
 
-        return response()->json(['user' => $user->only($this->userFields)]);
+        // ─── Auto-provision the tenant website + homepage ──────────
+        // Pulls theme from $user->selected_theme_id, maps the customise
+        // step's colours/typography/etc into engine tokens, and bootstraps
+        // a draft homepage with the theme's required sections.
+        // Idempotent: if a website already exists it is returned untouched.
+        $website = $this->websites->createForUser($user->fresh());
+
+        return response()->json([
+            'user' => $user->only($this->userFields),
+            'website' => [
+                'id' => $website->id,
+                'subdomain' => $website->subdomain,
+                'status' => $website->status,
+            ],
+        ]);
     }
 }

@@ -5,6 +5,8 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -50,5 +52,16 @@ class User extends Authenticatable implements MustVerifyEmail
             'donations_enabled' => 'boolean',
             'onboarding_completed_at' => 'datetime',
         ];
+    }
+
+    public function websites(): HasMany
+    {
+        return $this->hasMany(Website::class);
+    }
+
+    /** Convenience: each user has at most one website in the MVP. */
+    public function website(): HasOne
+    {
+        return $this->hasOne(Website::class)->latestOfMany();
     }
 }
