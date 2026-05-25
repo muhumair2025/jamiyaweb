@@ -30,7 +30,9 @@ interface Props {
 
 export function BuilderSidebar({ sectionsCatalog }: Props) {
   const draft = useBuilderStore((s) => s.draft);
-  const selectedId = useBuilderStore((s) => s.selectedSectionId);
+  // Sidebar highlight = the section in scope, whether the user has the
+  // section itself or an element inside it selected.
+  const selectedId = useBuilderStore((s) => s.selection?.sectionId ?? null);
   const select = useBuilderStore((s) => s.selectSection);
   const reorder = useBuilderStore((s) => s.reorderSections);
   const remove = useBuilderStore((s) => s.removeSection);

@@ -3,6 +3,8 @@ import {
   getSectionComponent,
   type SectionComponent,
 } from "../component-registry";
+import { applySectionStyle } from "../style/apply";
+import { SectionElementProvider } from "../element/EngineElement";
 import type {
   PageContent,
   ResolvedTokens,
@@ -10,6 +12,7 @@ import type {
   ThemeMeta,
 } from "../types";
 import { generateCssVars, mergeTokens } from "./tokens";
+import { findFont, googleFontUrl } from "../fonts/registry";
 
 interface EnginePageProps {
   /** Full theme object as returned by /api/themes/{slug}. */
@@ -40,8 +43,18 @@ export function EnginePage({
   const tokens = mergeTokens(theme.tokens, overrides);
   const cssVars = generateCssVars(tokens) as CSSProperties;
 
+  // Collect every Google Font referenced by element-level font_family
+  // overrides on this page, so we can inject their stylesheets server-side.
+  // (Tokens-driven theme fonts ship via the global theme CSS; this is for
+  // per-element picker selections.)
+  const fontLinks = collectFontLinks(page.content_json);
+
   return (
     <div data-jw-engine={theme.slug} style={cssVars}>
+      {fontLinks.map((href) => (
+        // eslint-disable-next-line @next/next/no-css-tags
+        <link key={href} rel="stylesheet" href={href} />
+      ))}
       {page.content_json.sections.map((section) => (
         <RenderedSection
           key={section.id}
@@ -52,6 +65,28 @@ export function EnginePage({
       ))}
     </div>
   );
+}
+
+/** Extract the primary family from `'Cairo', sans-serif` → `Cairo`. */
+function primaryFamily(fontFamily: string | undefined | null): string | null {
+  if (!fontFamily) return null;
+  const first = fontFamily.split(",")[0].trim();
+  return first.replace(/^['"]|['"]$/g, "");
+}
+
+/** Walk content_json and return distinct Google Font stylesheet URLs to load. */
+function collectFontLinks(content: PageContent): string[] {
+  const urls = new Set<string>();
+  for (const section of content.sections) {
+    if (!section.elements) continue;
+    for (const style of Object.values(section.elements)) {
+      const fam = primaryFamily(style?.font_family);
+      if (!fam) continue;
+      const entry = findFont(fam);
+      if (entry) urls.add(googleFontUrl(entry));
+    }
+  }
+  return Array.from(urls);
 }
 
 function RenderedSection({
@@ -69,6 +104,8 @@ function RenderedSection({
     return <UnknownSection slug={section.type} sectionId={section.id} />;
   }
 
+  const styleProps = applySectionStyle(section.style);
+
   const wrapperProps = builderMode
     ? {
         "data-jw-section-id": section.id,
@@ -77,12 +114,18 @@ function RenderedSection({
     : undefined;
 
   return (
-    <div {...wrapperProps}>
-      <Component
-        settings={section.settings}
-        tokens={tokens}
+    <div {...wrapperProps} style={styleProps}>
+      <SectionElementProvider
         sectionId={section.id}
-      />
+        elements={section.elements ?? {}}
+        builderMode={builderMode ?? false}
+      >
+        <Component
+          settings={section.settings}
+          tokens={tokens}
+          sectionId={section.id}
+        />
+      </SectionElementProvider>
     </div>
   );
 }

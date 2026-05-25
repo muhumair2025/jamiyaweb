@@ -44,6 +44,40 @@ export {
 // Renderer
 export { EnginePage } from "./core/renderer";
 
+// Per-section style system
+export { applySectionStyle, maxWidthValue } from "./style/apply";
+export {
+  BODY_SCALES,
+  HEADING_SCALES,
+  MAX_WIDTHS,
+  STYLE_CSS_VARS,
+  type SectionStyle,
+  type HeadingSize,
+  type BodySize,
+} from "./style/types";
+export { SectionStyleSchema } from "./style/schema";
+
+// Per-element style system (Elementor-class customisation)
+export {
+  EngineElement,
+  SectionElementProvider,
+} from "./element/EngineElement";
+export {
+  applyElementStyle,
+  backgroundOverlayStyle,
+} from "./element/apply";
+export {
+  KIND_FIELDS,
+  SHADOW_PRESETS,
+  type ElementKind,
+  type ElementStyle,
+  type SectionElements,
+} from "./element/types";
+export {
+  ElementStyleSchema,
+  SectionElementsSchema,
+} from "./element/schema";
+
 // Forms — auto-generated edit form for any section
 export { SectionForm } from "./forms/section-form";
 export { schemaToFields } from "./forms/schema-to-fields";

@@ -29,8 +29,9 @@ export function BuilderCanvas({ websiteId, pageSlug }: Props) {
   const [previewReady, setPreviewReady] = useState(false);
 
   const draft = useBuilderStore((s) => s.draft);
-  const selectedSectionId = useBuilderStore((s) => s.selectedSectionId);
+  const selection = useBuilderStore((s) => s.selection);
   const selectSection = useBuilderStore((s) => s.selectSection);
+  const selectElement = useBuilderStore((s) => s.selectElement);
 
   // Listen for messages FROM the iframe
   useEffect(() => {
@@ -46,11 +47,14 @@ export function BuilderCanvas({ websiteId, pageSlug }: Props) {
         case "SECTION_CLICK":
           selectSection(msg.sectionId);
           break;
+        case "ELEMENT_CLICK":
+          selectElement(msg.sectionId, msg.elementId, msg.elementKind);
+          break;
       }
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [selectSection]);
+  }, [selectSection, selectElement]);
 
   // Push UPDATE_PAGE whenever the draft changes (and the iframe is alive)
   useEffect(() => {
@@ -58,18 +62,15 @@ export function BuilderCanvas({ websiteId, pageSlug }: Props) {
     postToIframe(iframeRef.current, {
       kind: "UPDATE_PAGE",
       page: draft,
-      selectedSectionId,
+      selection,
     });
-  }, [draft, selectedSectionId, previewReady]);
+  }, [draft, selection, previewReady]);
 
   // Also push selection-only changes (so clicking sidebar highlights iframe)
   useEffect(() => {
     if (!previewReady) return;
-    postToIframe(iframeRef.current, {
-      kind: "SELECT_SECTION",
-      sectionId: selectedSectionId,
-    });
-  }, [selectedSectionId, previewReady]);
+    postToIframe(iframeRef.current, { kind: "SELECT", selection });
+  }, [selection, previewReady]);
 
   const iframeWidth = DEVICE_WIDTHS[device];
 

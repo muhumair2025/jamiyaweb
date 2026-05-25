@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\PublicSiteController;
 use App\Http\Controllers\Api\SectionController;
@@ -40,9 +41,20 @@ Route::middleware('auth:sanctum')->group(function () {
     // Websites (one per user in MVP)
     Route::get('/websites/me', [WebsiteController::class, 'me']);
     Route::post('/websites', [WebsiteController::class, 'store']);
+    Route::post('/websites/{website}/publish', [WebsiteController::class, 'publish']);
+    Route::post('/websites/{website}/unpublish', [WebsiteController::class, 'unpublish']);
 
     // Pages (scoped to a website)
     Route::get('/websites/{website}/pages', [PageController::class, 'index']);
     Route::get('/websites/{website}/pages/{slug}', [PageController::class, 'show']);
     Route::patch('/websites/{website}/pages/{slug}', [PageController::class, 'update']);
+
+    // Media library (scoped to authenticated user; ?website_id= narrows further)
+    Route::get('/media', [MediaController::class, 'index']);
+    Route::post('/media', [MediaController::class, 'store']);
+    Route::post('/media/bulk-delete', [MediaController::class, 'bulkDestroy']);
+    Route::get('/media/folders', [MediaController::class, 'folders']);
+    Route::get('/media/{media}', [MediaController::class, 'show']);
+    Route::patch('/media/{media}', [MediaController::class, 'update']);
+    Route::delete('/media/{media}', [MediaController::class, 'destroy']);
 });

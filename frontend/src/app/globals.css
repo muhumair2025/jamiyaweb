@@ -139,3 +139,19 @@ html { scroll-behavior: smooth; }
   background: var(--brand-teal-100);
   color: var(--brand-teal-900);
 }
+
+/* ─── Builder iframe — element hover/selected outlines ─── */
+.jw-builder-hover {
+  outline: 1px dashed transparent;
+  outline-offset: 2px;
+  transition: outline-color 120ms ease;
+  cursor: pointer;
+}
+.jw-builder-hover:hover {
+  outline-color: rgba(32, 102, 92, 0.45); /* brand-teal @ 45% */
+}
+/* Selected wins over hover (selected state set via inline style on the element) */
+[data-jw-element-selected="true"] {
+  position: relative;
+  z-index: 1;
+}

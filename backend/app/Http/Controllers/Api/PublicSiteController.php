@@ -35,9 +35,27 @@ class PublicSiteController extends Controller
         }
 
         $isOwner = $this->isOwner($request, $website);
+        $isPublished = $website->status === 'published';
 
-        if ($website->status !== 'published' && ! $isOwner) {
-            throw new NotFoundHttpException('Site not published.');
+        // Draft + not owner → friendly "coming soon" payload (instead of 404).
+        // The frontend renders a tasteful placeholder page using site_name + tagline.
+        if (! $isPublished && ! $isOwner) {
+            return response()->json([
+                'data' => [
+                    'website' => [
+                        'site_name' => $website->site_name,
+                        'tagline' => $website->tagline,
+                        'subdomain' => $website->subdomain,
+                        'logo_path' => $website->logo_path,
+                        'favicon_path' => $website->favicon_path,
+                        'status' => 'draft',
+                    ],
+                    'theme' => null,
+                    'pages' => [],
+                    'is_preview' => false,
+                    'is_coming_soon' => true,
+                ],
+            ]);
         }
 
         $theme = $website->theme;
@@ -101,6 +119,7 @@ class PublicSiteController extends Controller
                     'status' => $p->status,
                 ])->values(),
                 'is_preview' => $isOwner && $website->status !== 'published',
+                'is_coming_soon' => false,
             ],
         ]);
     }

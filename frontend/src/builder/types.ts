@@ -1,4 +1,5 @@
 import type { PageContent, SectionInstance } from "@/engine/types";
+import type { ElementKind } from "@/engine/element/types";
 
 /**
  * Cross-frame postMessage protocol between the builder shell and the
@@ -10,20 +11,39 @@ import type { PageContent, SectionInstance } from "@/engine/types";
  * post with explicit `targetOrigin: window.location.origin`.
  */
 
+// ─── Selection (shared by store + messages) ──────────────────────
+export type Selection =
+  | null
+  | { kind: "section"; sectionId: string }
+  | {
+      kind: "element";
+      sectionId: string;
+      elementId: string;
+      /** Drives which controls the right panel shows. */
+      elementKind: ElementKind;
+    };
+
+// ─── Messages ────────────────────────────────────────────────────
 export type BuilderToPreviewMessage =
   | {
       kind: "UPDATE_PAGE";
       page: PageContent;
-      selectedSectionId: string | null;
+      selection: Selection;
     }
   | {
-      kind: "SELECT_SECTION";
-      sectionId: string | null;
+      kind: "SELECT";
+      selection: Selection;
     };
 
 export type PreviewToBuilderMessage =
   | { kind: "PREVIEW_READY" }
-  | { kind: "SECTION_CLICK"; sectionId: string };
+  | { kind: "SECTION_CLICK"; sectionId: string }
+  | {
+      kind: "ELEMENT_CLICK";
+      sectionId: string;
+      elementId: string;
+      elementKind: ElementKind;
+    };
 
 export const BUILDER_MESSAGE_NAMESPACE = "jw-builder/v1";
 

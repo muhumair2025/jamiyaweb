@@ -13,6 +13,10 @@
 import { registerSection } from "@/engine/component-registry";
 import HeroBasic from "./hero-basic/component";
 import Paragraph from "./paragraph/component";
+import FeatureGrid from "./feature-grid/component";
+import CtaBand from "./cta-band/component";
 
 registerSection("hero-basic", HeroBasic);
 registerSection("paragraph", Paragraph);
+registerSection("feature-grid", FeatureGrid);
+registerSection("cta-band", CtaBand);

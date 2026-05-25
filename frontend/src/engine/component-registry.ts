@@ -25,13 +25,22 @@ export type SectionComponent<TSettings = Record<string, unknown>> = ComponentTyp
   SectionComponentProps<TSettings>
 >;
 
-const components = new Map<string, SectionComponent>();
+/**
+ * The registry is a heterogeneous bag of components — each section has a
+ * different settings shape. We deliberately type the storage and accessor
+ * with `any` for the settings generic so callers can register strictly-typed
+ * components without runtime casts.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyComponent = SectionComponent<any>;
 
-export function registerSection(slug: string, component: SectionComponent): void {
+const components = new Map<string, AnyComponent>();
+
+export function registerSection(slug: string, component: AnyComponent): void {
   components.set(slug, component);
 }
 
-export function getSectionComponent(slug: string): SectionComponent | null {
+export function getSectionComponent(slug: string): AnyComponent | null {
   return components.get(slug) ?? null;
 }
 

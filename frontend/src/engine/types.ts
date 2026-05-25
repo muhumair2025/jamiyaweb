@@ -4,6 +4,9 @@
  */
 
 // ─── Page content ─────────────────────────────────────────────────
+import type { SectionStyle } from "./style/types";
+import type { SectionElements } from "./element/types";
+
 export interface SectionInstance {
   /** UUID generated when the section was first added to the page. */
   id: string;
@@ -11,6 +14,10 @@ export interface SectionInstance {
   type: string;
   /** Free-form settings object, validated by the section's own schema. */
   settings: Record<string, unknown>;
+  /** Optional engine-managed style overrides applied to the whole section. */
+  style?: SectionStyle;
+  /** Optional per-element style overrides (Elementor-style). */
+  elements?: SectionElements;
 }
 
 export interface PageContent {

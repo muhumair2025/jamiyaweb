@@ -1,14 +1,20 @@
 import { z } from "zod";
+import { SectionStyleSchema } from "../style/schema";
+import { SectionElementsSchema } from "../element/schema";
 
 /**
  * Shape of a single section instance inside a page's content_json.
- * The `settings` payload is left as a generic record here — each section's
- * own Zod schema (in `sections/{slug}/schema.ts`) narrows it further.
+ *
+ *   - `settings`  : section-specific content (validated per-section by Zod)
+ *   - `style`     : whole-section overrides (background, padding, …)
+ *   - `elements`  : per-element overrides (heading colour, button radius, …)
  */
 export const SectionInstanceSchema = z.object({
   id: z.string().min(1),
   type: z.string().min(1),
   settings: z.record(z.string(), z.unknown()),
+  style: SectionStyleSchema.optional(),
+  elements: SectionElementsSchema.optional(),
 });
 
 /** Shape of `pages.content_json`. */

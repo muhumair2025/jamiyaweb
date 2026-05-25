@@ -37,6 +37,57 @@ class WebsiteController extends Controller
      * POST /api/websites
      * Creates the user's website. In MVP each user gets exactly one.
      */
+    /**
+     * POST /api/websites/{website}/publish
+     * Owner-only. Flips status to published and stamps published_at.
+     * Also publishes the homepage so the public route returns content.
+     */
+    public function publish(Request $request, Website $website): JsonResponse
+    {
+        $this->authorizeOwnership($request, $website);
+
+        $website->status = 'published';
+        $website->published_at ??= now();
+        $website->save();
+
+        // Publish the homepage too (other pages stay as-is)
+        $website->pages()->where('is_homepage', true)->update([
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+
+        return response()->json([
+            'data' => $this->present($website->fresh()->load('theme', 'homepage')),
+        ]);
+    }
+
+    /**
+     * POST /api/websites/{website}/unpublish
+     * Owner-only. Reverts to draft.
+     */
+    public function unpublish(Request $request, Website $website): JsonResponse
+    {
+        $this->authorizeOwnership($request, $website);
+
+        $website->status = 'draft';
+        $website->save();
+
+        $website->pages()->update(['status' => 'draft']);
+
+        return response()->json([
+            'data' => $this->present($website->fresh()->load('theme', 'homepage')),
+        ]);
+    }
+
+    private function authorizeOwnership(Request $request, Website $website): void
+    {
+        if ($website->user_id !== $request->user()->id) {
+            throw ValidationException::withMessages([
+                'website' => 'Forbidden.',
+            ])->status(403);
+        }
+    }
+
     public function store(Request $request): JsonResponse
     {
         if ($request->user()->website()->exists()) {

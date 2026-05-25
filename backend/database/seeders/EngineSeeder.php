@@ -141,7 +141,148 @@ class EngineSeeder extends Seeder
             ]
         );
 
-        // ─── Theme: compassion ────────────────────────────────
+        // ─── Section: feature-grid ────────────────────────────
+        $featureGrid = Section::updateOrCreate(
+            ['slug' => 'feature-grid'],
+            [
+                'name' => 'Feature grid (3 columns)',
+                'version' => '1.0.0',
+                'category' => 'content',
+                'icon' => 'LayoutGrid',
+                'preview_url' => null,
+                'is_active' => true,
+                'schema_json' => [
+                    'type' => 'object',
+                    'fieldOrder' => [
+                        'eyebrow', 'heading', 'subheading',
+                        'feature_1_icon', 'feature_1_title', 'feature_1_desc',
+                        'feature_2_icon', 'feature_2_title', 'feature_2_desc',
+                        'feature_3_icon', 'feature_3_title', 'feature_3_desc',
+                    ],
+                    'properties' => [
+                        'eyebrow' => [
+                            'type' => 'string', 'title' => 'Eyebrow', 'maxLength' => 80,
+                            'placeholder' => 'What we do',
+                        ],
+                        'heading' => [
+                            'type' => 'string', 'title' => 'Heading', 'maxLength' => 200,
+                            'placeholder' => 'What we offer',
+                        ],
+                        'subheading' => [
+                            'type' => 'string', 'title' => 'Subheading',
+                            'format' => 'textarea', 'maxLength' => 400,
+                        ],
+                        'feature_1_icon' => self::iconProp('Feature 1 — icon', 'Sparkles'),
+                        'feature_1_title' => ['type' => 'string', 'title' => 'Feature 1 — title', 'maxLength' => 80],
+                        'feature_1_desc' => ['type' => 'string', 'title' => 'Feature 1 — description', 'format' => 'textarea', 'maxLength' => 300],
+                        'feature_2_icon' => self::iconProp('Feature 2 — icon', 'Heart'),
+                        'feature_2_title' => ['type' => 'string', 'title' => 'Feature 2 — title', 'maxLength' => 80],
+                        'feature_2_desc' => ['type' => 'string', 'title' => 'Feature 2 — description', 'format' => 'textarea', 'maxLength' => 300],
+                        'feature_3_icon' => self::iconProp('Feature 3 — icon', 'Award'),
+                        'feature_3_title' => ['type' => 'string', 'title' => 'Feature 3 — title', 'maxLength' => 80],
+                        'feature_3_desc' => ['type' => 'string', 'title' => 'Feature 3 — description', 'format' => 'textarea', 'maxLength' => 300],
+                    ],
+                    'required' => ['heading'],
+                ],
+                'default_settings_json' => [
+                    'eyebrow' => 'What we offer',
+                    'heading' => 'Built around your community',
+                    'subheading' => 'Three things every Jamiya needs from day one.',
+                    'feature_1_icon' => 'BookOpen',
+                    'feature_1_title' => 'Daily classes',
+                    'feature_1_desc' => 'Quran, Tafsir, Fiqh and Arabic — scheduled and searchable.',
+                    'feature_2_icon' => 'HandHeart',
+                    'feature_2_title' => 'Easy donations',
+                    'feature_2_desc' => 'Accept zakat, sadaqah and campaign giving in a single click.',
+                    'feature_3_icon' => 'Users',
+                    'feature_3_title' => 'A real community',
+                    'feature_3_desc' => 'Events, volunteer signup and newsletters — all in one place.',
+                ],
+            ]
+        );
+
+        // ─── Section: cta-band ────────────────────────────────
+        $ctaBand = Section::updateOrCreate(
+            ['slug' => 'cta-band'],
+            [
+                'name' => 'CTA band',
+                'version' => '1.0.0',
+                'category' => 'cta',
+                'icon' => 'Megaphone',
+                'preview_url' => null,
+                'is_active' => true,
+                'schema_json' => [
+                    'type' => 'object',
+                    'fieldOrder' => ['heading', 'subheading', 'button_label', 'button_href', 'style'],
+                    'properties' => [
+                        'heading' => [
+                            'type' => 'string', 'title' => 'Heading',
+                            'minLength' => 1, 'maxLength' => 200,
+                            'placeholder' => 'Ready to get started?',
+                        ],
+                        'subheading' => [
+                            'type' => 'string', 'title' => 'Subheading',
+                            'format' => 'textarea', 'maxLength' => 400,
+                        ],
+                        'button_label' => [
+                            'type' => 'string', 'title' => 'Button label',
+                            'maxLength' => 64, 'placeholder' => 'Get started',
+                        ],
+                        'button_href' => [
+                            'type' => 'string', 'title' => 'Button link',
+                            'format' => 'url', 'maxLength' => 255,
+                            'placeholder' => 'https://…',
+                        ],
+                        'style' => [
+                            'type' => 'string', 'title' => 'Style',
+                            'enum' => ['dark', 'light'],
+                            'enumLabels' => ['dark' => 'Dark band', 'light' => 'Light band'],
+                            'description' => 'Dark uses your primary colour; Light uses the page background.',
+                        ],
+                    ],
+                    'required' => ['heading'],
+                ],
+                'default_settings_json' => [
+                    'heading' => 'Support our students this month',
+                    'subheading' => 'Every donation funds books, meals and tuition for a real Jamiya.',
+                    'button_label' => 'Donate now',
+                    'button_href' => '#donate',
+                    'style' => 'dark',
+                ],
+            ]
+        );
+
+        // ─── Theme: Starter (default, supports BOTH website types) ───────
+        $starter = Theme::updateOrCreate(
+            ['slug' => 'starter'],
+            [
+                'name' => 'Starter',
+                'version' => '1.0.0',
+                'author' => 'JamiyaWeb',
+                'preview_url' => null,
+                'is_active' => true,
+                'is_default' => true,
+                'sort_order' => 1,
+                'supported_types' => ['welfare', 'scholar'],
+                'manifest_json' => [
+                    'id' => 'starter',
+                    'name' => 'Starter',
+                    'version' => '1.0.0',
+                    'engine' => '>=1.0.0 <2.0.0',
+                    'supported_types' => ['welfare', 'scholar'],
+                    'default_pages' => ['home'],
+                ],
+                'tokens_json' => self::defaultTokens(),
+            ]
+        );
+        $starter->sections()->sync([
+            $hero->id        => ['sort_order' => 1, 'is_required' => true],
+            $featureGrid->id => ['sort_order' => 2, 'is_required' => false],
+            $paragraph->id   => ['sort_order' => 3, 'is_required' => false],
+            $ctaBand->id     => ['sort_order' => 4, 'is_required' => false],
+        ]);
+
+        // ─── Theme: Compassion (welfare-only, no longer default) ─────────
         $compassion = Theme::updateOrCreate(
             ['slug' => 'compassion'],
             [
@@ -150,7 +291,7 @@ class EngineSeeder extends Seeder
                 'author' => 'JamiyaWeb',
                 'preview_url' => null,
                 'is_active' => true,
-                'is_default' => true,
+                'is_default' => false,
                 'sort_order' => 10,
                 'supported_types' => ['welfare'],
                 'manifest_json' => [
@@ -161,22 +302,42 @@ class EngineSeeder extends Seeder
                     'supported_types' => ['welfare'],
                     'default_pages' => ['home'],
                 ],
-                'tokens_json' => [
-                    'color.primary'    => ['type' => 'color', 'default' => '#20665c', 'label' => 'Primary'],
-                    'color.accent'     => ['type' => 'color', 'default' => '#c18f2c', 'label' => 'Accent'],
-                    'color.background' => ['type' => 'color', 'default' => '#fbfaf7', 'label' => 'Background'],
-                    'color.foreground' => ['type' => 'color', 'default' => '#0c1f1c', 'label' => 'Text'],
-                    'font.heading'     => ['type' => 'font',  'default' => 'geist',   'label' => 'Heading font'],
-                    'font.body'        => ['type' => 'font',  'default' => 'geist',   'label' => 'Body font'],
-                    'radius.card'      => ['type' => 'size',  'default' => '16px',    'label' => 'Card radius'],
-                ],
+                'tokens_json' => self::defaultTokens(),
             ]
         );
-
-        // ─── Compose Compassion theme with both sections ──────
-        $compassion->sections()->syncWithoutDetaching([
-            $hero->id      => ['sort_order' => 1, 'is_required' => true],
-            $paragraph->id => ['sort_order' => 2, 'is_required' => false],
+        $compassion->sections()->sync([
+            $hero->id        => ['sort_order' => 1, 'is_required' => true],
+            $featureGrid->id => ['sort_order' => 2, 'is_required' => false],
+            $paragraph->id   => ['sort_order' => 3, 'is_required' => false],
+            $ctaBand->id     => ['sort_order' => 4, 'is_required' => false],
         ]);
+    }
+
+    /** Shared default tokens reused across themes. */
+    private static function defaultTokens(): array
+    {
+        return [
+            'color.primary'    => ['type' => 'color', 'default' => '#20665c', 'label' => 'Primary'],
+            'color.accent'     => ['type' => 'color', 'default' => '#c18f2c', 'label' => 'Accent'],
+            'color.background' => ['type' => 'color', 'default' => '#fbfaf7', 'label' => 'Background'],
+            'color.foreground' => ['type' => 'color', 'default' => '#0c1f1c', 'label' => 'Text'],
+            'font.heading'     => ['type' => 'font',  'default' => 'geist',   'label' => 'Heading font'],
+            'font.body'        => ['type' => 'font',  'default' => 'geist',   'label' => 'Body font'],
+            'radius.card'      => ['type' => 'size',  'default' => '16px',    'label' => 'Card radius'],
+        ];
+    }
+
+    /** Helper to keep the icon select definition DRY for feature-grid. */
+    private static function iconProp(string $title, string $default): array
+    {
+        return [
+            'type' => 'string',
+            'title' => $title,
+            'default' => $default,
+            'enum' => [
+                'Sparkles', 'Heart', 'Award', 'BookOpen', 'Users', 'Star',
+                'Compass', 'HandHeart', 'Globe', 'Mail', 'Phone', 'Calendar',
+            ],
+        ];
     }
 }

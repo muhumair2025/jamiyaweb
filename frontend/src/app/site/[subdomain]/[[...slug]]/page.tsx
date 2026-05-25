@@ -22,19 +22,20 @@ interface TenantPagePayload {
 
 interface TenantSitePayload {
   website: {
-    id: number;
+    id?: number;
     subdomain: string;
     site_name: string;
     tagline: string | null;
-    favicon_path: string | null;
-    tokens: Record<string, string> | null;
-    site_languages: string[];
-    default_locale: string;
+    favicon_path?: string | null;
+    tokens?: Record<string, string> | null;
+    site_languages?: string[];
+    default_locale?: string;
     status: "draft" | "published";
   };
   theme: ThemeMeta | null;
   pages: Array<{ slug: string; title: string; is_homepage: boolean }>;
   is_preview: boolean;
+  is_coming_soon?: boolean;
 }
 
 // ─── Fetchers (server-only, cached for 60s) ──────────────────────
@@ -83,6 +84,20 @@ export async function generateMetadata(
   const site = await fetchSite(subdomain);
   if (!site) return { title: "Not found" };
 
+  const favicon = site.website.favicon_path
+    ? { icon: `${API_URL}/storage/${site.website.favicon_path}` }
+    : undefined;
+
+  // Draft → minimal coming-soon metadata, no page fetch
+  if (site.is_coming_soon) {
+    return {
+      title: `${site.website.site_name} — Coming soon`,
+      description: site.website.tagline ?? undefined,
+      icons: favicon,
+      robots: { index: false, follow: false },
+    };
+  }
+
   const pageSlug =
     (Array.isArray(slug) && slug.length > 0
       ? slug.join("/")
@@ -102,9 +117,7 @@ export async function generateMetadata(
   return {
     title: seoTitle,
     description: seoDesc,
-    icons: site.website.favicon_path
-      ? { icon: `${API_URL}/storage/${site.website.favicon_path}` }
-      : undefined,
+    icons: favicon,
   };
 }
 
@@ -115,7 +128,15 @@ export default async function TenantPage(
   const { subdomain, slug } = await props.params;
 
   const site = await fetchSite(subdomain);
-  if (!site || !site.theme) notFound();
+  if (!site) notFound();
+
+  // Site exists but is in draft and visitor isn't the owner → friendly
+  // placeholder page instead of a stark 404.
+  if (site.is_coming_soon) {
+    return <ComingSoon site={site} />;
+  }
+
+  if (!site.theme) notFound();
 
   const themeCheck = validateTheme(site.theme);
   if (!themeCheck.ok || !themeCheck.data) {
@@ -133,14 +154,15 @@ export default async function TenantPage(
   const page = await fetchPage(subdomain, pageSlug);
   if (!page) notFound();
 
-  const dir = site.website.default_locale === "ar" ? "rtl" : "ltr";
+  const locale = site.website.default_locale ?? "en";
+  const dir = locale === "ar" ? "rtl" : "ltr";
 
   return (
-    <div lang={site.website.default_locale} dir={dir}>
+    <div lang={locale} dir={dir}>
       {site.is_preview && <PreviewBanner subdomain={subdomain} />}
       <EnginePage
         theme={theme}
-        overrides={site.website.tokens}
+        overrides={site.website.tokens ?? null}
         page={{ content_json: page.content_json }}
       />
     </div>
@@ -148,6 +170,45 @@ export default async function TenantPage(
 }
 
 // ─── Sub-views ───────────────────────────────────────────────────
+function ComingSoon({ site }: { site: TenantSitePayload }) {
+  const initials = (site.website.site_name || site.website.subdomain || "?")
+    .split(/\s+/)
+    .map((w) => w.charAt(0))
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  return (
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-brand-900 px-6 py-16 text-white">
+      <div aria-hidden className="absolute inset-0 bg-arabesque opacity-30" />
+      <div className="relative mx-auto max-w-md text-center">
+        <span className="mx-auto inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-white/10 text-2xl font-bold tracking-wider text-white/95 backdrop-blur">
+          {initials}
+        </span>
+
+        <h1 className="mt-7 text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+          {site.website.site_name}
+        </h1>
+
+        {site.website.tagline && (
+          <p className="mt-3 text-base leading-relaxed text-white/75">
+            {site.website.tagline}
+          </p>
+        )}
+
+        <p className="mt-10 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white/85 backdrop-blur">
+          <span className="inline-flex h-1.5 w-1.5 rounded-full bg-amber-300" />
+          Coming soon, in shaa Allah
+        </p>
+
+        <p className="mt-8 font-arabic-auto text-xl text-gold-200">
+          بسم الله الرحمن الرحيم
+        </p>
+      </div>
+    </main>
+  );
+}
+
 function PreviewBanner({ subdomain }: { subdomain: string }) {
   return (
     <div

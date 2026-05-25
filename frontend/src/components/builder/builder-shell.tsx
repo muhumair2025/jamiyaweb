@@ -75,26 +75,40 @@ export function BuilderShell({
       />
 
       <div className="flex-1 overflow-hidden">
+        {/* react-resizable-panels v4 — numeric sizes are PIXELS, strings are
+            percentages. We want flex layout, so all sizes are strings here. */}
         <PanelGroup orientation="horizontal" className="h-full">
           {/* ── Left: sections list ── */}
-          <Panel defaultSize={20} minSize={16} maxSize={32} className="bg-surface">
+          <Panel
+            id="sidebar"
+            defaultSize="20%"
+            minSize="16%"
+            maxSize="32%"
+            className="bg-surface"
+          >
             <BuilderSidebar sectionsCatalog={sectionsCatalog} />
           </Panel>
 
-          <PanelResizeHandle className="w-px bg-border data-[resize-handle-state=hover]:bg-brand/30 data-[resize-handle-state=drag]:bg-brand/50" />
+          <PanelResizeHandle className="w-px bg-border transition-colors data-[resize-handle-state=hover]:bg-brand/30 data-[resize-handle-state=drag]:bg-brand/50" />
 
           {/* ── Middle: live preview ── */}
-          <Panel defaultSize={55} minSize={35}>
+          <Panel id="canvas" defaultSize="55%" minSize="35%">
             <BuilderCanvas
               websiteId={meta.websiteId}
               pageSlug={meta.pageSlug}
             />
           </Panel>
 
-          <PanelResizeHandle className="w-px bg-border data-[resize-handle-state=hover]:bg-brand/30 data-[resize-handle-state=drag]:bg-brand/50" />
+          <PanelResizeHandle className="w-px bg-border transition-colors data-[resize-handle-state=hover]:bg-brand/30 data-[resize-handle-state=drag]:bg-brand/50" />
 
           {/* ── Right: form panel ── */}
-          <Panel defaultSize={25} minSize={20} maxSize={40} className="bg-surface">
+          <Panel
+            id="form"
+            defaultSize="25%"
+            minSize="20%"
+            maxSize="40%"
+            className="bg-paper"
+          >
             <BuilderFormPanel sectionsCatalog={sectionsCatalog} />
           </Panel>
         </PanelGroup>

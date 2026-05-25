@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { getCurrentWebsite } from "@/lib/websites";
+import { PublishButton } from "@/components/dashboard/publish-button";
 
 export default async function DashboardPage(
   props: PageProps<"/[locale]/dashboard">
@@ -91,6 +92,7 @@ function WebsiteHeroCard({
   previewHref: string;
   locale: string;
 }) {
+  const isPublished = website.status === "published";
   const primary = website.tokens?.["color.primary"] ?? "#20665c";
   const accent = website.tokens?.["color.accent"] ?? "#c18f2c";
 
@@ -145,6 +147,18 @@ function WebsiteHeroCard({
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row md:flex-col md:items-stretch">
+          <PublishButton
+            websiteId={website.id}
+            locale={locale}
+            initialStatus={website.status}
+          />
+          <Link
+            href={`/${locale}/builder/${website.id}/home`}
+            className="group inline-flex h-11 items-center justify-center gap-2 rounded-full bg-foreground px-5 text-sm font-semibold text-background shadow-card transition-colors hover:bg-brand"
+          >
+            <PenSquare className="h-4 w-4" />
+            Edit website
+          </Link>
           <Link
             href={previewHref}
             target="_blank"
@@ -152,14 +166,7 @@ function WebsiteHeroCard({
             className="group inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border bg-background px-5 text-sm font-semibold text-foreground transition-colors hover:border-brand/40 hover:text-brand"
           >
             <ExternalLink className="h-4 w-4" />
-            View live
-          </Link>
-          <Link
-            href={`/${locale}/builder/${website.id}/home`}
-            className="group inline-flex h-11 items-center justify-center gap-2 rounded-full bg-foreground px-5 text-sm font-semibold text-background shadow-card transition-colors hover:bg-brand"
-          >
-            <PenSquare className="h-4 w-4" />
-            Edit website
+            {isPublished ? "View live" : "Preview"}
           </Link>
         </div>
       </div>

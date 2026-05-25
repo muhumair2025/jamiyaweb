@@ -42,7 +42,6 @@ export const NAV_GROUPS: DashNavGroup[] = [
         key: "builder",
         href: (wid) => (wid ? `/builder/${wid}/home` : null),
         icon: PenSquare,
-        comingSoon: true,
       },
     ],
   },
@@ -51,7 +50,7 @@ export const NAV_GROUPS: DashNavGroup[] = [
     items: [
       { key: "pages", href: "/pages", icon: FileText, comingSoon: true },
       { key: "posts", href: "/posts", icon: Newspaper, comingSoon: true },
-      { key: "media", href: "/media", icon: ImageIcon, comingSoon: true },
+      { key: "media", href: "/media", icon: ImageIcon },
     ],
   },
   {
