@@ -1,12 +1,15 @@
 "use client";
 
-import { AlignCenter, AlignLeft, AlignRight } from "lucide-react";
+import { AlignCenter, AlignLeft, AlignRight, Monitor, Smartphone, Tablet } from "lucide-react";
 import {
   KIND_FIELDS,
   type ElementKind,
   type ElementStyle,
+  type ResponsiveOverride,
 } from "@/engine/element/types";
+import { mergeStyleForDevice } from "@/engine/element/apply";
 import { useBuilderStore } from "@/builder/store";
+import { cn } from "@/lib/utils";
 import {
   ImageStyleField,
   PercentSliderField,
@@ -29,6 +32,12 @@ interface Props {
  * relevant to the element's kind — `KIND_FIELDS[kind]` decides which.
  * Writes back to the builder store via `updateElementStyle` so the iframe
  * re-renders immediately.
+ *
+ * **Responsive behaviour:** Each control reads the merged value for the
+ * active device (desktop / tablet / mobile) so it shows what's actually
+ * being rendered. Edits made in tablet/mobile write to `style.tablet` /
+ * `style.mobile` partial slots — desktop stays untouched. Mobile cascades
+ * tablet which cascades desktop, exactly like CSS media queries.
  */
 export function ElementStylePanel({
   sectionId,
@@ -37,29 +46,53 @@ export function ElementStylePanel({
   style,
 }: Props) {
   const updateElementStyle = useBuilderStore((s) => s.updateElementStyle);
+  const device = useBuilderStore((s) => s.device);
   const allowed = new Set(KIND_FIELDS[elementKind]);
 
-  const s = style ?? {};
+  // Show the user the value that's actually rendering for the active device
+  // (after cascade). Reset buttons read this too, so "Reset" clears only the
+  // current-device override and falls back to the next-up layer.
+  const s = mergeStyleForDevice(style, device);
 
   const setKey = <K extends keyof ElementStyle>(
     key: K,
     value: ElementStyle[K] | undefined
   ) => {
-    const next: ElementStyle = { ...style };
-    if (
+    const isEmpty =
       value === undefined ||
       value === null ||
-      (typeof value === "string" && value === "")
-    ) {
-      delete next[key];
+      (typeof value === "string" && value === "");
+
+    const next: ElementStyle = { ...style };
+
+    if (device === "desktop") {
+      // Write to the base (desktop) fields directly.
+      if (isEmpty) delete next[key];
+      else next[key] = value;
     } else {
-      next[key] = value;
+      // Write to the tablet or mobile override slot.
+      const slot = device; // "tablet" | "mobile"
+      const sub: ResponsiveOverride = { ...(next[slot] ?? {}) };
+      if (isEmpty) {
+        delete (sub as Record<string, unknown>)[key as string];
+      } else {
+        (sub as Record<string, unknown>)[key as string] = value;
+      }
+      // Don't keep empty override objects around — easier to read in DB.
+      if (Object.keys(sub).length === 0) {
+        delete next[slot];
+      } else {
+        next[slot] = sub;
+      }
     }
+
     updateElementStyle(sectionId, elementId, next);
   };
 
   return (
     <div className="space-y-6">
+      <DeviceEditingBanner style={style} device={device} />
+
       {/* ── TYPOGRAPHY ── (text, heading, button) ── */}
       {(allowed.has("color") ||
         allowed.has("font_size") ||
@@ -379,6 +412,79 @@ export function ElementStylePanel({
 }
 
 // ─────────────────────────────────────────────────────────────────
+/** Tiny banner at the top of the element panel that shows which device
+ *  the user is editing for + dots for any other devices that already have
+ *  overrides. Mirrors the Elementor / Webflow pattern. */
+function DeviceEditingBanner({
+  style,
+  device,
+}: {
+  style: ElementStyle | undefined;
+  device: "desktop" | "tablet" | "mobile";
+}) {
+  const hasTabletOverride =
+    !!style?.tablet && Object.keys(style.tablet).length > 0;
+  const hasMobileOverride =
+    !!style?.mobile && Object.keys(style.mobile).length > 0;
+
+  const Icon =
+    device === "mobile" ? Smartphone : device === "tablet" ? Tablet : Monitor;
+  const label =
+    device === "mobile" ? "mobile" : device === "tablet" ? "tablet" : "desktop";
+  const tone =
+    device === "desktop"
+      ? "bg-brand-50/80 text-brand"
+      : "bg-amber-50 text-amber-800 border-amber-200";
+
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-between gap-2 rounded-md border px-2.5 py-1.5",
+        device === "desktop"
+          ? "border-brand/20 bg-brand-50/60 text-brand"
+          : "border-amber-200 bg-amber-50 text-amber-800",
+        tone
+      )}
+    >
+      <div className="flex items-center gap-1.5">
+        <Icon className="h-3.5 w-3.5" />
+        <span className="text-[11px] font-semibold">
+          Editing for {label}
+        </span>
+      </div>
+      <div className="flex items-center gap-1" aria-label="Device override summary">
+        <DeviceDot label="Desktop" active hasOverride />
+        <DeviceDot label="Tablet" active={device === "tablet"} hasOverride={hasTabletOverride} />
+        <DeviceDot label="Mobile" active={device === "mobile"} hasOverride={hasMobileOverride} />
+      </div>
+    </div>
+  );
+}
+
+function DeviceDot({
+  label,
+  active,
+  hasOverride,
+}: {
+  label: string;
+  active: boolean;
+  hasOverride: boolean;
+}) {
+  return (
+    <span
+      title={`${label}${hasOverride ? " · has overrides" : ""}`}
+      className={cn(
+        "inline-block h-1.5 w-1.5 rounded-full transition-colors",
+        active
+          ? "bg-current"
+          : hasOverride
+            ? "bg-current opacity-60"
+            : "bg-current opacity-20"
+      )}
+    />
+  );
+}
+
 function Group({
   label,
   children,

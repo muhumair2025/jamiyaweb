@@ -7,8 +7,10 @@
  *   1. Theme defaults (via tokens, e.g. `var(--jw-color-primary)`)
  *   2. The section component's own hard-coded fallback
  *
- * Designed to stay LIGHT — a fixed schema of ~10 controls covers 95% of
- * Shopify-class customisation needs without per-section duplication.
+ * **Responsive (desktop-first cascade)** — same shape as ElementStyle:
+ * root fields are the desktop/base values; `tablet` and `mobile` carry
+ * partial overrides that win at narrower viewports. See `applySectionStyle`
+ * and [[responsive-editing]] for the merge semantics.
  */
 export interface SectionStyle {
   /** Vertical padding (top + bottom). Values like "0", "2rem", "4rem". */
@@ -32,7 +34,14 @@ export interface SectionStyle {
   max_width?: "sm" | "md" | "lg" | "xl" | "full";
   /** Corner radius for the section's outer wrapper. */
   radius?: string;
+
+  /** Responsive overrides — partial of the same shape minus these slots. */
+  tablet?: SectionStyleOverride;
+  mobile?: SectionStyleOverride;
 }
+
+/** Partial SectionStyle for a single responsive breakpoint. */
+export type SectionStyleOverride = Partial<Omit<SectionStyle, "tablet" | "mobile">>;
 
 export type HeadingSize = "xs" | "sm" | "md" | "lg" | "xl";
 export type BodySize = "sm" | "md" | "lg";

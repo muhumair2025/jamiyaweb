@@ -8,8 +8,16 @@ import {
   type ElementType,
   type ReactNode,
 } from "react";
-import { applyElementStyle, backgroundOverlayStyle } from "./apply";
-import type { ElementKind, SectionElements } from "./types";
+import {
+  applyElementStyle,
+  backgroundOverlayStyle,
+  elementResponsiveCss,
+} from "./apply";
+import type {
+  DeviceBreakpoint,
+  ElementKind,
+  SectionElements,
+} from "./types";
 
 /**
  * Section-scoped context — the section's render path sets this up so every
@@ -22,6 +30,12 @@ interface SectionElementContext {
   builderMode: boolean;
   /** Currently-selected element id inside this section. `null` otherwise. */
   selectedElementId?: string | null;
+  /**
+   * Active device — drives the responsive style merge inside this section.
+   * Only meaningful in builder mode; on the public site the rendered CSS
+   * itself carries the media queries.
+   */
+  device?: DeviceBreakpoint;
 }
 
 const Ctx = createContext<SectionElementContext | null>(null);
@@ -31,11 +45,12 @@ export function SectionElementProvider({
   elements,
   builderMode,
   selectedElementId,
+  device,
   children,
 }: SectionElementContext & { children: ReactNode }) {
   const value = useMemo(
-    () => ({ sectionId, elements, builderMode, selectedElementId }),
-    [sectionId, elements, builderMode, selectedElementId]
+    () => ({ sectionId, elements, builderMode, selectedElementId, device }),
+    [sectionId, elements, builderMode, selectedElementId, device]
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
@@ -80,12 +95,14 @@ export function EngineElement({
   const override = ctx?.elements?.[el];
   const builderMode = ctx?.builderMode ?? false;
   const isSelected = builderMode && ctx?.selectedElementId === el;
+  const device = ctx?.device ?? "desktop";
 
   // Apply element style overrides FIRST, then merge the section component's
   // base style on top — but skip merging anything the override already set.
+  // The device-aware merge cascades desktop → tablet → mobile in builder mode.
   const overrideStyle = useMemo(
-    () => applyElementStyle(override, kind),
-    [override, kind]
+    () => applyElementStyle(override, kind, device),
+    [override, kind, device]
   );
 
   const finalStyle = useMemo(() => {
@@ -104,11 +121,56 @@ export function EngineElement({
   }, [extraStyle, overrideStyle, isSelected, kind]);
 
   // Overlay layer for background kind — paints between the wrapper's
-  // background image/colour and the section content.
-  const overlayStyle = useMemo(
-    () => (kind === "background" ? backgroundOverlayStyle(override) : null),
-    [kind, override]
-  );
+  // background image/colour and the section content. Uses the merged
+  // device style so per-device overlay tweaks work too.
+  const overlayStyle = useMemo(() => {
+    if (kind !== "background" || !override) return null;
+    // Build a synthetic ElementStyle carrying just overlay_* for the active
+    // device, then read it back.
+    const merged = {
+      overlay_color: override.overlay_color,
+      overlay_opacity: override.overlay_opacity,
+      ...(device !== "desktop" && override.tablet
+        ? {
+            overlay_color: override.tablet.overlay_color ?? override.overlay_color,
+            overlay_opacity:
+              override.tablet.overlay_opacity ?? override.overlay_opacity,
+          }
+        : {}),
+      ...(device === "mobile" && override.mobile
+        ? {
+            overlay_color:
+              override.mobile.overlay_color ??
+              override.tablet?.overlay_color ??
+              override.overlay_color,
+            overlay_opacity:
+              override.mobile.overlay_opacity ??
+              override.tablet?.overlay_opacity ??
+              override.overlay_opacity,
+          }
+        : {}),
+    };
+    return backgroundOverlayStyle(merged);
+  }, [kind, override, device]);
+
+  // Stable id so the responsive CSS rule can target this exact element on
+  // the public site without colliding with siblings.
+  const sectionId = ctx?.sectionId ?? "";
+  const eid = `${sectionId}-${el}`;
+
+  // Responsive CSS — only emitted on the public site. In builder mode the
+  // device toggle already drives inline-style merge, so emitting media
+  // queries would double-up and confuse the simulated viewport.
+  const responsiveCss = useMemo(() => {
+    if (builderMode || !override) return "";
+    if (!override.tablet && !override.mobile) return "";
+    const { cssText } = elementResponsiveCss(
+      override,
+      kind,
+      `[data-jw-eid="${eid}"]`
+    );
+    return cssText;
+  }, [builderMode, override, kind, eid]);
 
   // Builder-only data attributes — picked up by the iframe click handler
   // and the outline CSS selector.
@@ -118,7 +180,9 @@ export function EngineElement({
         "data-jw-element-kind": kind,
         "data-jw-element-selected": isSelected ? "true" : undefined,
       }
-    : undefined;
+    : responsiveCss
+      ? { "data-jw-eid": eid }
+      : undefined;
 
   const finalClassName = builderMode
     ? `${HOVER_OUTLINE_CLASS}${className ? " " + className : ""}`
@@ -140,6 +204,9 @@ export function EngineElement({
       className={finalClassName}
       style={finalStyle}
     >
+      {responsiveCss && (
+        <style dangerouslySetInnerHTML={{ __html: responsiveCss }} />
+      )}
       {overlayStyle && <div aria-hidden style={overlayStyle} />}
       {renderChildren}
     </Component>

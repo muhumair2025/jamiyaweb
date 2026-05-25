@@ -10,7 +10,10 @@ import { generateCssVars, mergeTokens } from "@/engine/core/tokens";
 import { getSectionComponent } from "@/engine/component-registry";
 import { applySectionStyle } from "@/engine/style/apply";
 import { SectionElementProvider } from "@/engine/element/EngineElement";
-import type { ElementKind } from "@/engine/element/types";
+import type {
+  DeviceBreakpoint,
+  ElementKind,
+} from "@/engine/element/types";
 import { loadFontByFamily } from "@/engine/fonts/loader";
 import type {
   PageContent,
@@ -47,6 +50,7 @@ interface Props {
 export function BuilderRenderer({ theme, overrides, initialPage }: Props) {
   const [page, setPage] = useState<PageContent>(initialPage);
   const [selection, setSelection] = useState<Selection>(null);
+  const [device, setDevice] = useState<DeviceBreakpoint>("desktop");
 
   const tokens = useMemo(
     () => mergeTokens(theme.tokens, overrides ?? null),
@@ -69,9 +73,13 @@ export function BuilderRenderer({ theme, overrides, initialPage }: Props) {
         case "UPDATE_PAGE":
           setPage(msg.page);
           setSelection(msg.selection);
+          setDevice(msg.device);
           break;
         case "SELECT":
           setSelection(msg.selection);
+          break;
+        case "SET_DEVICE":
+          setDevice(msg.device);
           break;
       }
     };
@@ -106,6 +114,7 @@ export function BuilderRenderer({ theme, overrides, initialPage }: Props) {
           section={section}
           tokens={tokens}
           selection={selection}
+          device={device}
         />
       ))}
       {page.sections.length === 0 && <EmptyHint />}
@@ -118,10 +127,12 @@ function BuilderSection({
   section,
   tokens,
   selection,
+  device,
 }: {
   section: SectionInstance;
   tokens: ResolvedTokens;
   selection: Selection;
+  device: DeviceBreakpoint;
 }) {
   const Component = getSectionComponent(section.type);
 
@@ -163,10 +174,46 @@ function BuilderSection({
     postToParent({ kind: "SECTION_CLICK", sectionId: section.id });
   };
 
-  // Per-section style overrides (padding, bg, type scales, etc.)
+  // Right-click → ask the outer builder to show a context menu. We send
+  // iframe-local coordinates; the outer translates them to viewport coords.
+  const onContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const start = e.target as HTMLElement;
+    const root = e.currentTarget;
+
+    let cursor: HTMLElement | null = start;
+    while (cursor && cursor !== root) {
+      const el = cursor.getAttribute("data-jw-element");
+      const kind = cursor.getAttribute("data-jw-element-kind") as ElementKind | null;
+      if (el && kind) {
+        postToParent({
+          kind: "CONTEXT_MENU",
+          x: e.clientX,
+          y: e.clientY,
+          sectionId: section.id,
+          elementId: el,
+          elementKind: kind,
+        });
+        return;
+      }
+      cursor = cursor.parentElement;
+    }
+
+    postToParent({
+      kind: "CONTEXT_MENU",
+      x: e.clientX,
+      y: e.clientY,
+      sectionId: section.id,
+    });
+  };
+
+  // Per-section style overrides — device-aware merge so paddings/colors
+  // change live when the user flips between Desktop / Tablet / Mobile.
   const styleProps = useMemo(
-    () => applySectionStyle(section.style),
-    [section.style]
+    () => applySectionStyle(section.style, device),
+    [section.style, device]
   );
 
   return (
@@ -174,6 +221,7 @@ function BuilderSection({
       data-jw-section-id={section.id}
       data-jw-section-type={section.type}
       onClick={onClick}
+      onContextMenu={onContextMenu}
       style={styleProps}
       className={cn(
         "group relative cursor-pointer outline outline-2 -outline-offset-2 transition-colors",
@@ -203,6 +251,7 @@ function BuilderSection({
           elements={section.elements ?? {}}
           builderMode
           selectedElementId={selectedElementId}
+          device={device}
         >
           <Component
             settings={section.settings}

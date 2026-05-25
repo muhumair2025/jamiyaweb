@@ -9,27 +9,28 @@ import {
   type BuilderToPreviewMessage,
   type PreviewToBuilderMessage,
 } from "@/builder/types";
+import { DEVICE_IFRAME_WIDTHS } from "@/engine/element/apply";
+import type { DeviceBreakpoint } from "@/engine/element/types";
 import { cn } from "@/lib/utils";
+import {
+  BuilderContextMenu,
+  type ContextMenuTarget,
+} from "./builder-context-menu";
 
 interface Props {
   websiteId: number;
   pageSlug: string;
 }
 
-type Device = "desktop" | "tablet" | "mobile";
-const DEVICE_WIDTHS: Record<Device, number | null> = {
-  desktop: null,
-  tablet: 820,
-  mobile: 390,
-};
-
 export function BuilderCanvas({ websiteId, pageSlug }: Props) {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const [device, setDevice] = useState<Device>("desktop");
   const [previewReady, setPreviewReady] = useState(false);
+  const [contextMenu, setContextMenu] = useState<ContextMenuTarget | null>(null);
 
   const draft = useBuilderStore((s) => s.draft);
   const selection = useBuilderStore((s) => s.selection);
+  const device = useBuilderStore((s) => s.device);
+  const setDevice = useBuilderStore((s) => s.setDevice);
   const selectSection = useBuilderStore((s) => s.selectSection);
   const selectElement = useBuilderStore((s) => s.selectElement);
 
@@ -50,6 +51,26 @@ export function BuilderCanvas({ websiteId, pageSlug }: Props) {
         case "ELEMENT_CLICK":
           selectElement(msg.sectionId, msg.elementId, msg.elementKind);
           break;
+        case "CONTEXT_MENU": {
+          // Translate iframe-local coords → viewport coords. Also bring the
+          // section/element into selection so the menu is contextually
+          // correct (the copy/paste/hide actions read from selection).
+          if (msg.elementId && msg.elementKind) {
+            selectElement(msg.sectionId, msg.elementId, msg.elementKind);
+          } else {
+            selectSection(msg.sectionId);
+          }
+          const rect = iframeRef.current?.getBoundingClientRect();
+          if (!rect) return;
+          setContextMenu({
+            x: rect.left + msg.x,
+            y: rect.top + msg.y,
+            sectionId: msg.sectionId,
+            elementId: msg.elementId,
+            elementKind: msg.elementKind,
+          });
+          break;
+        }
       }
     };
     window.addEventListener("message", onMessage);
@@ -63,8 +84,9 @@ export function BuilderCanvas({ websiteId, pageSlug }: Props) {
       kind: "UPDATE_PAGE",
       page: draft,
       selection,
+      device,
     });
-  }, [draft, selection, previewReady]);
+  }, [draft, selection, device, previewReady]);
 
   // Also push selection-only changes (so clicking sidebar highlights iframe)
   useEffect(() => {
@@ -72,7 +94,13 @@ export function BuilderCanvas({ websiteId, pageSlug }: Props) {
     postToIframe(iframeRef.current, { kind: "SELECT", selection });
   }, [selection, previewReady]);
 
-  const iframeWidth = DEVICE_WIDTHS[device];
+  // Push device changes (so the iframe re-merges styles for the new viewport)
+  useEffect(() => {
+    if (!previewReady) return;
+    postToIframe(iframeRef.current, { kind: "SET_DEVICE", device });
+  }, [device, previewReady]);
+
+  const iframeWidth = DEVICE_IFRAME_WIDTHS[device];
 
   return (
     <div className="flex h-full flex-col bg-paper">
@@ -115,6 +143,13 @@ export function BuilderCanvas({ websiteId, pageSlug }: Props) {
           />
         </div>
       </div>
+
+      {contextMenu && (
+        <BuilderContextMenu
+          target={contextMenu}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
     </div>
   );
 }
@@ -125,9 +160,9 @@ function DeviceBtn({
   onChange,
   children,
 }: {
-  current: Device;
-  value: Device;
-  onChange: (d: Device) => void;
+  current: DeviceBreakpoint;
+  value: DeviceBreakpoint;
+  onChange: (d: DeviceBreakpoint) => void;
   children: React.ReactNode;
 }) {
   const active = current === value;

@@ -1,5 +1,5 @@
 import type { PageContent, SectionInstance } from "@/engine/types";
-import type { ElementKind } from "@/engine/element/types";
+import type { DeviceBreakpoint, ElementKind } from "@/engine/element/types";
 
 /**
  * Cross-frame postMessage protocol between the builder shell and the
@@ -29,10 +29,15 @@ export type BuilderToPreviewMessage =
       kind: "UPDATE_PAGE";
       page: PageContent;
       selection: Selection;
+      device: DeviceBreakpoint;
     }
   | {
       kind: "SELECT";
       selection: Selection;
+    }
+  | {
+      kind: "SET_DEVICE";
+      device: DeviceBreakpoint;
     };
 
 export type PreviewToBuilderMessage =
@@ -43,6 +48,19 @@ export type PreviewToBuilderMessage =
       sectionId: string;
       elementId: string;
       elementKind: ElementKind;
+    }
+  | {
+      /**
+       * Right-click happened inside the iframe. Coordinates are
+       * iframe-local; the outer builder translates them to viewport-local
+       * by adding the iframe's bounding rect.
+       */
+      kind: "CONTEXT_MENU";
+      x: number;
+      y: number;
+      sectionId: string;
+      elementId?: string;
+      elementKind?: ElementKind;
     };
 
 export const BUILDER_MESSAGE_NAMESPACE = "jw-builder/v1";

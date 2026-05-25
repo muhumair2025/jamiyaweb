@@ -3,7 +3,7 @@ import {
   getSectionComponent,
   type SectionComponent,
 } from "../component-registry";
-import { applySectionStyle } from "../style/apply";
+import { applySectionStyle, sectionResponsiveCss } from "../style/apply";
 import { SectionElementProvider } from "../element/EngineElement";
 import type {
   PageContent,
@@ -104,17 +104,28 @@ function RenderedSection({
     return <UnknownSection slug={section.type} sectionId={section.id} />;
   }
 
-  const styleProps = applySectionStyle(section.style);
+  // Public render: emit base inline + media-query CSS for tablet/mobile
+  // overrides on the section wrapper itself.
+  const { base: styleProps, cssText } = sectionResponsiveCss(
+    section.style,
+    `[data-jw-sid="${section.id}"]`
+  );
+  const needsResponsiveAttr = !builderMode && cssText.length > 0;
 
   const wrapperProps = builderMode
     ? {
         "data-jw-section-id": section.id,
         "data-jw-section-type": section.type,
       }
-    : undefined;
+    : needsResponsiveAttr
+      ? { "data-jw-sid": section.id }
+      : undefined;
 
   return (
     <div {...wrapperProps} style={styleProps}>
+      {needsResponsiveAttr && (
+        <style dangerouslySetInnerHTML={{ __html: cssText }} />
+      )}
       <SectionElementProvider
         sectionId={section.id}
         elements={section.elements ?? {}}

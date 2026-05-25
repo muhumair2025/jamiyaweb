@@ -1,0 +1,82 @@
+Tier 1 — Foundational gaps (the "I can use this without help" bar)
+1. Responsive editing (desktop / tablet / mobile)
+The single biggest feature you don't have. Every Elementor/Webflow user expects it. Implementation: extend ElementStyle to { base: ElementStyle, sm?: Partial<ElementStyle>, md?: Partial<ElementStyle> }, add device toggle to the topbar, scope iframe width to device, and tag each style control with the active breakpoint. Without this, mobile sites look broken — and most of your traffic is mobile.
+
+2. Inline text editing in the canvas
+Double-click a heading → edit in place (contentEditable), tab/escape to commit. Currently every text change is a round-trip through the right panel — slow and breaks flow. Their site is mostly text; this matters more than colors.
+
+3. Section quick actions: drag-reorder, duplicate, delete
+You already have dnd-kit installed. Add drag handles in the sidebar, plus a hover toolbar (⋮ menu) on each section in the canvas with Duplicate / Delete / Move-up / Move-down. "Duplicate" alone saves 80% of new-section building because clients copy what works.
+
+4. Undo/redo with Ctrl+Z
+Critical for confidence. Your Zustand store can wrap each mutation in a history stack — keep the last ~50 page snapshots. Anyone editing live and afraid of breaking things won't experiment without this.
+
+5. Right-click element menu
+Copy style → Paste style → Duplicate → Hide → Delete. Power feature that feels like a desktop app and pays for itself the first time someone wants two buttons to match.
+
+Tier 2 — Templates & presets (so they don't start from blank)
+6. Pre-built section variants ("starter blocks")
+Instead of "Add Hero" → blank component, offer 6-8 hero variants: "Hero with image right", "Centered with video bg", "Split with stats", "Donation hero". Same for CTA, features, etc. Stored as JSON snippets in your section registry. Welfare/Jamiya clients aren't designers — they want to pick, then tweak.
+
+7. Saved styles / shared presets
+"Save this button style" → reusable across the site. When a client tweaks one CTA to perfection, they want all 12 CTAs to match without redoing it. Implementation: a styles table per website, ElementStyle snapshots with a name.
+
+8. Color palette presets
+Curated 4-5 color sets for Islamic/welfare brands (Emerald + Gold, Indigo + Ochre, etc.). One click sets color.primary, color.accent, color.background tokens. The token system is already there — you just need the picker UI on the Theme page.
+
+9. Spacing presets per section
+Buttons in the section style panel: "Compact / Comfortable / Spacious / Custom". Sets padding_top/bottom for the whole section. Clients don't think in rem.
+
+Tier 3 — UX polish that signals "pro tool"
+10. Element tree / breadcrumb in the right panel
+At the top of the element style panel, show Section › Container › Heading. Click any segment to jump up. Helps when nested elements get confusing — which they do as sections grow.
+
+11. Hover/Focus state tabs for buttons
+Above the button's Typography group: tabs Normal | Hover. Stores hover as a sibling field on ElementStyle. CSS via :hover pseudo at render time. Without this, every button looks dead.
+
+12. Empty-state placeholders in the canvas
+When a hero has no image, show a "Click to add background image" dashed box instead of nothing. Same for empty headings. Currently the canvas hides empty fields, which makes them invisible to non-developers.
+
+13. Tooltips on every control
+A ? icon next to "Letter spacing" → hover shows "Space between characters. Use small negative values for tighter headings." Half your audience doesn't know what padding-x means. Tooltips are 30 minutes of work and dramatically reduce support requests.
+
+14. Keyboard shortcuts overlay
+Cmd+S save, Cmd+P preview, Cmd+D duplicate, Cmd+/ show shortcut sheet. Pro feel without much code.
+
+Tier 4 — Quality & trust features
+15. Accessibility contrast checker
+When the user picks text colour, show a small badge: "AA ✓ / AA ✗" comparing it to the section background. Most clients don't think about this and produce unreadable sites. ~50 lines of code.
+
+16. SEO + social preview panel
+Already have seo_json in the page schema — surface it in the page editor with a live "Google search result" preview and "Facebook share card" preview. Clients don't open dev tools to check OG tags.
+
+17. Page-level + global areas (header / footer)
+Right now everything is per-page. A header/footer is the same on 20 pages — clients edit it 20 times. Add a "Global" toggle on a section that makes it appear on every page (or a sub-tree of pages).
+
+18. Repeater fields
+Your feature-grid has fixed feature_1, feature_2, feature_3 slots. Schema-level repeater (features: { type: "repeater", min: 1, max: 12 }) so clients can add a 4th feature. Mentioned in your own code comment as "once the engine supports repeater fields, we'll switch."
+
+19. Image cropper in the media library
+Right now uploads are whatever shape they uploaded. A crop UI before saving (or as an edit action) keeps hero ratios consistent without Photoshop.
+
+Tier 5 — Differentiation (Islamic/welfare-specific)
+20. Hijri date picker + Arabic numeral toggle
+For event sections, fatwa dates, etc.
+
+21. Donation widget section
+First-class section with goal + progress + Stripe/PayPal/Razorpay handlers. The donations toggle is already on the user model — wire a section to it.
+
+22. Quranic verse / Hadith block
+Section with an Arabic + translation field, automatically right-aligned, with a curated Arabic font. Niche, but exactly what your target market wants and nobody else builds for them.
+
+My recommendation for what to build next
+If I were you, in this order — each delivers value before you start the next:
+
+Undo/redo + section duplicate/delete/reorder (1-2 days, unblocks everything else)
+Responsive editing (1 week, most-requested missing feature)
+Inline text editing in canvas (2-3 days, biggest "wow" moment for non-technical users)
+Starter blocks per section (2-3 days of designing + JSON authoring, hugest velocity boost for clients)
+Tooltips + element breadcrumb (1 day, makes the existing panel feel finished)
+After that you have a tool that competes with the cheap end of Elementor/Wix for the Islamic-welfare niche.
+
+Want me to start on any of these? I'd suggest undo/redo + section actions first since they're cheap, broadly useful, and the foundation other features build on.

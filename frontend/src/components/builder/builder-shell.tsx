@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Panel,
   Group as PanelGroup,
@@ -8,10 +8,12 @@ import {
 } from "react-resizable-panels";
 import type { PageContent, SectionMeta } from "@/engine/types";
 import { useBuilderStore } from "@/builder/store";
+import { useBuilderShortcuts } from "@/builder/shortcuts";
 import { BuilderTopbar } from "./builder-topbar";
 import { BuilderSidebar } from "./builder-sidebar";
 import { BuilderCanvas } from "./builder-canvas";
 import { BuilderFormPanel } from "./builder-form-panel";
+import { ShortcutsOverlay } from "./shortcuts-overlay";
 
 interface Props {
   locale: string;
@@ -48,6 +50,7 @@ export function BuilderShell({
 }: Props) {
   const hydrate = useBuilderStore((s) => s.hydrate);
   const hydrated = useRef(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
   // Hydrate the store exactly once for this mount
   useEffect(() => {
@@ -63,6 +66,18 @@ export function BuilderShell({
       initialPage
     );
   }, [hydrate, meta, initialPage]);
+
+  const openPreview = useCallback(() => {
+    // Same URL the topbar's "View live" button uses, but Cmd+P aware.
+    window.open(`http://${meta.subdomain}.localhost:3000`, "_blank", "noopener,noreferrer");
+  }, [meta.subdomain]);
+
+  const toggleShortcutOverlay = useCallback(
+    () => setShortcutsOpen((v) => !v),
+    []
+  );
+
+  useBuilderShortcuts({ openPreview, toggleShortcutOverlay });
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -113,6 +128,11 @@ export function BuilderShell({
           </Panel>
         </PanelGroup>
       </div>
+
+      <ShortcutsOverlay
+        open={shortcutsOpen}
+        onClose={() => setShortcutsOpen(false)}
+      />
     </div>
   );
 }

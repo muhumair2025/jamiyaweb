@@ -23,8 +23,23 @@ export type ElementKind =
 /** Map of element id (e.g. "title", "cta") → style overrides. */
 export type SectionElements = Record<string, ElementStyle>;
 
-/** Single permissive shape. Apply logic filters by kind. */
+/** Single permissive shape. Apply logic filters by kind.
+ *
+ * **Responsive cascade (desktop-first):** any of the style fields below
+ * count as the "desktop / base" value. Partial overrides for narrower
+ * viewports live under `tablet` and `mobile` keys. Render merge order:
+ *   • Desktop view → base only
+ *   • Tablet view  → base ∪ tablet
+ *   • Mobile view  → base ∪ tablet ∪ mobile
+ * Untouched fields on tablet/mobile fall through to the next-up layer.
+ */
 export interface ElementStyle {
+  // ── Responsive overrides (desktop-first cascade) ──
+  // These are intentionally typed as `Partial<...>` of the SAME shape minus
+  // the nested override keys to prevent infinite recursion.
+  tablet?: ResponsiveOverride;
+  mobile?: ResponsiveOverride;
+
   // ── Visibility ──
   hidden?: boolean;
 
@@ -75,6 +90,13 @@ export interface ElementStyle {
   margin_top?: string;
   margin_bottom?: string;
 }
+
+/** Partial of ElementStyle minus the nested override keys.
+ *  Used for `tablet` and `mobile` slots to prevent recursive nesting. */
+export type ResponsiveOverride = Partial<Omit<ElementStyle, "tablet" | "mobile">>;
+
+/** The three device buckets the builder edits against. */
+export type DeviceBreakpoint = "desktop" | "tablet" | "mobile";
 
 /** Box-shadow presets for the `shadow` enum. */
 export const SHADOW_PRESETS: Record<NonNullable<ElementStyle["shadow"]>, string> = {

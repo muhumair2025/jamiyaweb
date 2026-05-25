@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useTransition } from "react";
 import {
   ArrowLeft,
   ExternalLink,
@@ -12,7 +11,7 @@ import {
   Undo2,
 } from "lucide-react";
 import { useBuilderStore } from "@/builder/store";
-import { savePageAction } from "@/builder/actions";
+import { useBuilderSave } from "@/builder/save";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -30,34 +29,11 @@ export function BuilderTopbar({
   themeName,
   pageTitle,
 }: Props) {
-  const meta = useBuilderStore((s) => s.meta);
-  const draft = useBuilderStore((s) => s.draft);
   const undo = useBuilderStore((s) => s.undo);
   const redo = useBuilderStore((s) => s.redo);
   const canUndo = useBuilderStore((s) => s.canUndo());
   const canRedo = useBuilderStore((s) => s.canRedo());
-  const isDirty = useBuilderStore((s) => s.isDirty());
-  const saving = useBuilderStore((s) => s.saving);
-  const beginSave = useBuilderStore((s) => s.beginSave);
-  const finishSave = useBuilderStore((s) => s.finishSave);
-  const failSave = useBuilderStore((s) => s.failSave);
-
-  const [pending, startTransition] = useTransition();
-  const busy = saving || pending;
-
-  const onSave = () => {
-    if (!meta || busy || !isDirty) return;
-    beginSave();
-    startTransition(async () => {
-      const result = await savePageAction(
-        meta.websiteId,
-        meta.pageSlug,
-        draft
-      );
-      if (result.ok) finishSave(draft);
-      else failSave(result.message ?? "Save failed");
-    });
-  };
+  const { save, busy, disabled, isDirty } = useBuilderSave();
 
   return (
     <header className="flex h-12 shrink-0 items-center justify-between gap-3 border-b border-border bg-surface px-3 sm:px-4">
@@ -111,8 +87,8 @@ export function BuilderTopbar({
         </IconBtn>
         <button
           type="button"
-          onClick={onSave}
-          disabled={!isDirty || busy}
+          onClick={save}
+          disabled={disabled}
           className={cn(
             "inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-sm font-semibold transition-colors",
             isDirty && !busy

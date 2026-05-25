@@ -83,6 +83,12 @@ class PageController extends Controller
             'content_json.sections.*.style.max_width' => ['sometimes', 'nullable', 'string', 'in:sm,md,lg,xl,full'],
             'content_json.sections.*.style.radius' => ['sometimes', 'nullable', 'string', 'max:32'],
 
+            // Section-level responsive overrides — partial of SectionStyle
+            // scoped to a breakpoint. Trusted as arrays; client-side TS
+            // enforces exact shape. Capped to keep JSON small.
+            'content_json.sections.*.style.tablet' => ['sometimes', 'nullable', 'array', 'max:20'],
+            'content_json.sections.*.style.mobile' => ['sometimes', 'nullable', 'array', 'max:20'],
+
             // Per-element style overrides — mirrors ElementStyleSchema
             // (engine/element/schema.ts). `elements` is a map of element-id
             // (e.g. "title") → ElementStyle, so we use `.*` twice.
@@ -119,6 +125,13 @@ class PageController extends Controller
             'content_json.sections.*.elements.*.margin_top' => ['sometimes', 'nullable', 'string', 'max:32'],
             'content_json.sections.*.elements.*.margin_bottom' => ['sometimes', 'nullable', 'string', 'max:32'],
             'content_json.sections.*.elements.*.align_self' => ['sometimes', 'nullable', 'string', 'in:auto,start,center,end,stretch'],
+
+            // Responsive overrides — partial element-style payloads scoped
+            // to a viewport breakpoint. Trusted as arrays; the client-side
+            // engine validates exact shape via TypeScript. We cap key count
+            // to keep the JSON sane.
+            'content_json.sections.*.elements.*.tablet' => ['sometimes', 'nullable', 'array', 'max:40'],
+            'content_json.sections.*.elements.*.mobile' => ['sometimes', 'nullable', 'array', 'max:40'],
 
             'seo_json' => ['sometimes', 'nullable', 'array'],
             'status' => ['sometimes', 'string', 'in:draft,published'],
