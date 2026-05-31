@@ -20,6 +20,14 @@ interface TenantPagePayload {
   is_preview: boolean;
 }
 
+interface TenantSectionInstance {
+  id: string;
+  type: string;
+  settings: Record<string, unknown>;
+  style?: Record<string, unknown>;
+  elements?: Record<string, unknown>;
+}
+
 interface TenantSitePayload {
   website: {
     id?: number;
@@ -28,6 +36,10 @@ interface TenantSitePayload {
     tagline: string | null;
     favicon_path?: string | null;
     tokens?: Record<string, string> | null;
+    /** Single-section global header (or null if not configured). */
+    header?: TenantSectionInstance | null;
+    /** Single-section global footer (or null if not configured). */
+    footer?: TenantSectionInstance | null;
     site_languages?: string[];
     default_locale?: string;
     status: "draft" | "published";
@@ -157,13 +169,27 @@ export default async function TenantPage(
   const locale = site.website.default_locale ?? "en";
   const dir = locale === "ar" ? "rtl" : "ltr";
 
+  // Merge the website's global header + footer with the page's own sections
+  // so they all render through the same engine pipeline (tokens, fonts,
+  // responsive CSS, element overrides). Header sits above page content;
+  // footer below.
+  const mergedSections = [
+    ...(site.website.header ? [site.website.header] : []),
+    ...page.content_json.sections,
+    ...(site.website.footer ? [site.website.footer] : []),
+  ];
+
   return (
     <div lang={locale} dir={dir}>
       {site.is_preview && <PreviewBanner subdomain={subdomain} />}
       <EnginePage
         theme={theme}
         overrides={site.website.tokens ?? null}
-        page={{ content_json: page.content_json }}
+        page={{
+          content_json: {
+            sections: mergedSections as typeof page.content_json.sections,
+          },
+        }}
       />
     </div>
   );

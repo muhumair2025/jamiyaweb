@@ -15,11 +15,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Engine bootstrap — sections + Starter / Compassion themes.
+        $this->call(EngineSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Rahmah — premium welfare theme with 5 pre-baked pages.
+        // Idempotent; safe to run repeatedly.
+        $this->call(RahmahThemeSeeder::class);
+
+        // Seed a test user only outside production.
+        if (app()->environment('local', 'testing')) {
+            User::factory()->create([
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+            ]);
+        }
     }
 }

@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 /**
  * In-memory map of section slug → React component implementation.
@@ -26,6 +26,25 @@ export type SectionComponent<TSettings = Record<string, unknown>> = ComponentTyp
 >;
 
 /**
+ * One pre-built visual style of a section. Sections can declare multiple
+ * variants (e.g. hero-basic has "classic" + "cinematic"); the user picks one
+ * from the Variants tab and it's stored in `settings.variant`.
+ *
+ * The thumbnail is a small visual preview rendered into the variant card —
+ * a tiny SVG mock works well (full live previews would be expensive).
+ */
+export interface SectionVariant {
+  /** Stable id stored in `settings.variant`. */
+  id: string;
+  /** Short label shown on the card. */
+  label: string;
+  /** One-liner shown under the label. */
+  description?: string;
+  /** Visual preview rendered inside the card. */
+  thumbnail: ReactNode;
+}
+
+/**
  * The registry is a heterogeneous bag of components — each section has a
  * different settings shape. We deliberately type the storage and accessor
  * with `any` for the settings generic so callers can register strictly-typed
@@ -34,20 +53,41 @@ export type SectionComponent<TSettings = Record<string, unknown>> = ComponentTyp
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyComponent = SectionComponent<any>;
 
-const components = new Map<string, AnyComponent>();
+interface RegistryEntry {
+  component: AnyComponent;
+  variants: SectionVariant[];
+}
 
-export function registerSection(slug: string, component: AnyComponent): void {
-  components.set(slug, component);
+const entries = new Map<string, RegistryEntry>();
+
+export interface RegisterSectionOptions {
+  /** Pre-built visual variants users can switch between. */
+  variants?: SectionVariant[];
+}
+
+export function registerSection(
+  slug: string,
+  component: AnyComponent,
+  options: RegisterSectionOptions = {}
+): void {
+  entries.set(slug, {
+    component,
+    variants: options.variants ?? [],
+  });
 }
 
 export function getSectionComponent(slug: string): AnyComponent | null {
-  return components.get(slug) ?? null;
+  return entries.get(slug)?.component ?? null;
+}
+
+export function getSectionVariants(slug: string): SectionVariant[] {
+  return entries.get(slug)?.variants ?? [];
 }
 
 export function isSectionRegistered(slug: string): boolean {
-  return components.has(slug);
+  return entries.has(slug);
 }
 
 export function listRegisteredSections(): string[] {
-  return Array.from(components.keys()).sort();
+  return Array.from(entries.keys()).sort();
 }

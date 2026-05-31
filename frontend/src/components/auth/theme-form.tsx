@@ -7,25 +7,55 @@ import { motion } from "motion/react";
 import { ArrowRight, ArrowLeft, Check } from "lucide-react";
 import { setThemeAction } from "@/app/actions/auth";
 import { initialAuthState } from "@/lib/auth-state";
-import type { DummyTheme } from "@/lib/themes";
 import { cn } from "@/lib/utils";
 import { FormBanner, SubmitButton } from "./form-primitives";
 
+export interface OnboardingTheme {
+  /** DB slug — what the backend stores on `user.selected_theme_id`. */
+  slug: string;
+  name: string;
+  tagline: string;
+  /** Hex tokens used for the preview gradient + accent strip. */
+  primary: string;
+  accent: string;
+  background: string;
+  isDefault: boolean;
+}
+
 interface Props {
   locale: string;
-  themes: DummyTheme[];
+  themes: OnboardingTheme[];
   initialSelected: string | null;
 }
 
 export function ThemeForm({ locale, themes, initialSelected }: Props) {
   const t = useTranslations("onboarding.theme");
-  const tThemes = useTranslations("onboarding.theme.themes");
-  const [selected, setSelected] = useState<string>(
-    initialSelected && themes.some((t) => t.id === initialSelected)
-      ? initialSelected
-      : themes[0]?.id ?? ""
-  );
+
+  // Default selection priority: prior choice → DB default → first available.
+  const defaultSlug =
+    (initialSelected && themes.find((x) => x.slug === initialSelected)?.slug) ??
+    themes.find((x) => x.isDefault)?.slug ??
+    themes[0]?.slug ??
+    "";
+
+  const [selected, setSelected] = useState<string>(defaultSlug);
   const [state, formAction] = useActionState(setThemeAction, initialAuthState);
+
+  // Empty state — no active themes seeded yet. Common during local dev
+  // before the user runs `php artisan db:seed`.
+  if (themes.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-border bg-surface p-8 text-center">
+        <p className="text-base font-semibold text-foreground">
+          No themes available
+        </p>
+        <p className="mt-2 text-sm text-foreground-soft">
+          Run <code className="font-mono">php artisan db:seed</code> on the
+          backend to install the theme catalogue, then refresh this page.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <form action={formAction} className="grid gap-8">
@@ -39,12 +69,12 @@ export function ThemeForm({ locale, themes, initialSelected }: Props) {
       {/* Theme grid */}
       <div className="grid gap-5 sm:grid-cols-2">
         {themes.map((theme, i) => {
-          const active = selected === theme.id;
+          const active = selected === theme.slug;
           return (
             <motion.button
-              key={theme.id}
+              key={theme.slug}
               type="button"
-              onClick={() => setSelected(theme.id)}
+              onClick={() => setSelected(theme.slug)}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.04 + i * 0.05 }}
@@ -56,24 +86,37 @@ export function ThemeForm({ locale, themes, initialSelected }: Props) {
               )}
               aria-pressed={active}
             >
-              {/* Preview */}
+              {/* Preview — gradient from the theme's own primary/accent tokens */}
               <div
-                className={cn(
-                  "relative h-40 overflow-hidden bg-gradient-to-br",
-                  theme.gradient
-                )}
+                className="relative h-40 overflow-hidden"
+                style={{
+                  background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.accent} 100%)`,
+                }}
               >
                 <div
                   aria-hidden
-                  className="absolute inset-0 bg-arabesque opacity-50"
+                  className="absolute inset-0 bg-arabesque opacity-40"
                 />
-                {/* Faux site card */}
-                <div className="absolute inset-x-6 bottom-0 origin-bottom translate-y-3 overflow-hidden rounded-t-lg border border-white/20 bg-surface shadow-elevated transition-transform duration-500 group-hover:-translate-y-1">
-                  <div className="border-b border-border bg-muted/60 px-2 py-1">
+
+                {/* Faux site card showing the theme's background colour */}
+                <div
+                  className="absolute inset-x-6 bottom-0 origin-bottom translate-y-3 overflow-hidden rounded-t-lg border border-white/20 shadow-elevated transition-transform duration-500 group-hover:-translate-y-1"
+                  style={{ background: theme.background }}
+                >
+                  <div
+                    className="border-b px-2 py-1"
+                    style={{
+                      borderColor: "rgba(0,0,0,0.08)",
+                      background: "rgba(0,0,0,0.04)",
+                    }}
+                  >
                     <span className="inline-flex h-1 w-1 rounded-full bg-foreground/30" />
                   </div>
                   <div className="space-y-1 p-2">
-                    <div className={cn("h-1.5 w-2/3 rounded", theme.accent)} />
+                    <div
+                      className="h-1.5 w-2/3 rounded"
+                      style={{ background: theme.accent }}
+                    />
                     <div className="h-1 w-1/2 rounded bg-foreground/15" />
                     <div className="mt-1 grid grid-cols-3 gap-0.5">
                       {[0, 1, 2].map((j) => (
@@ -85,7 +128,7 @@ export function ThemeForm({ locale, themes, initialSelected }: Props) {
                     </div>
                   </div>
                 </div>
-                {/* Selected indicator */}
+
                 {active && (
                   <span className="absolute end-3 top-3 inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand text-white shadow-card">
                     <Check className="h-4 w-4" strokeWidth={3} />
@@ -95,21 +138,27 @@ export function ThemeForm({ locale, themes, initialSelected }: Props) {
 
               {/* Meta */}
               <div className="p-5">
-                <h3 className="text-base font-semibold text-foreground">
-                  {tThemes(`${theme.id}.name`)}
-                </h3>
-                <p className="mt-1 text-sm text-foreground-soft">
-                  {tThemes(`${theme.id}.tagline`)}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {theme.features.map((f) => (
-                    <span
-                      key={f}
-                      className="inline-flex rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
-                    >
-                      {f}
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-base font-semibold text-foreground">
+                    {theme.name}
+                  </h3>
+                  {theme.isDefault && (
+                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700">
+                      Default
                     </span>
-                  ))}
+                  )}
+                </div>
+                {theme.tagline && (
+                  <p className="mt-1 text-sm leading-relaxed text-foreground-soft">
+                    {theme.tagline}
+                  </p>
+                )}
+
+                {/* Color chips */}
+                <div className="mt-3 flex items-center gap-1.5">
+                  <ColorChip colour={theme.primary} />
+                  <ColorChip colour={theme.accent} />
+                  <ColorChip colour={theme.background} bordered />
                 </div>
               </div>
             </motion.button>
@@ -132,5 +181,24 @@ export function ThemeForm({ locale, themes, initialSelected }: Props) {
         </SubmitButton>
       </div>
     </form>
+  );
+}
+
+function ColorChip({
+  colour,
+  bordered,
+}: {
+  colour: string;
+  bordered?: boolean;
+}) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "h-5 w-5 rounded-full",
+        bordered ? "border border-border" : "shadow-soft"
+      )}
+      style={{ background: colour }}
+    />
   );
 }

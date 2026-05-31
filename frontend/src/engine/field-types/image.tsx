@@ -4,8 +4,15 @@ import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { Image as ImageIcon, ImagePlus, X } from "lucide-react";
 import { FieldShell, useFieldError } from "./_field-shell";
+import { ImageOptions } from "./image-options";
 import { cn } from "@/lib/utils";
 import { MediaPicker } from "@/components/media/media-picker";
+import {
+  getImageUrl,
+  resolveImage,
+  type ImageValue,
+  type ImageValueObject,
+} from "@/engine/image-value";
 import type { FieldWidgetProps } from "./types";
 
 /** Last path segment of a URL — used so the field doesn't display a
@@ -21,10 +28,15 @@ function filenameFromUrl(value: string): string {
 }
 
 /**
- * Image field — opens the MediaPicker dialog which handles library
- * browsing, uploads, and URL paste in one place. The stored value is
- * always a plain URL string (see [[image-storage-decision]]: keep the
- * content_json portable, no DB joins at render).
+ * Image field — opens the MediaPicker dialog for browsing/upload/URL paste,
+ * then renders an "Image options" sub-panel beneath the picker with controls
+ * for fit, 9-point position, and overlay (colour + opacity).
+ *
+ * **Value shape:** either a plain URL string (legacy / freshly picked) or
+ * the rich object `{ url, fit?, position?, overlay_color?, overlay_opacity? }`.
+ * Section components normalise via `resolveImage()` so both shapes render
+ * the same way. The widget upgrades a string → object on the first option
+ * change, never mutates URL-only values silently.
  */
 export function ImageField({ config }: FieldWidgetProps) {
   const { control } = useFormContext();
@@ -37,7 +49,21 @@ export function ImageField({ config }: FieldWidgetProps) {
         control={control}
         name={config.id}
         render={({ field }) => {
-          const url = (field.value as string) || "";
+          const value = field.value as ImageValue;
+          const url = getImageUrl(value) ?? "";
+          const resolved = resolveImage(value);
+
+          /** Write the rich object form back to the field. */
+          const setObject = (next: ImageValueObject) => field.onChange(next);
+
+          /** Clear: drop back to empty string so legacy consumers stay happy. */
+          const clear = () => field.onChange("");
+
+          /** Pick: keep the value as a plain URL string until the user
+           *  touches an option control — that way unchanged data round-trips
+           *  to the DB in its original (cheaper) string form. */
+          const pick = (nextUrl: string) => field.onChange(nextUrl);
+
           return (
             <>
               <div
@@ -92,7 +118,7 @@ export function ImageField({ config }: FieldWidgetProps) {
                 {url && (
                   <button
                     type="button"
-                    onClick={() => field.onChange("")}
+                    onClick={clear}
                     className="inline-flex h-9 items-center gap-1 self-stretch rounded-md px-3 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 sm:self-center"
                     aria-label="Clear image"
                   >
@@ -102,10 +128,16 @@ export function ImageField({ config }: FieldWidgetProps) {
                 )}
               </div>
 
+              {/* Options panel — fit, 9-point position, overlay colour + opacity.
+                  Shown only when there's an image to customise. */}
+              {resolved && (
+                <ImageOptions resolved={resolved} onChange={setObject} />
+              )}
+
               <MediaPicker
                 open={pickerOpen}
                 onClose={() => setPickerOpen(false)}
-                onSelect={({ url: nextUrl }) => field.onChange(nextUrl)}
+                onSelect={({ url: nextUrl }) => pick(nextUrl)}
                 kind="image"
                 currentUrl={url || null}
                 title={`Choose ${config.label.toLowerCase()}`}

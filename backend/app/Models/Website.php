@@ -21,6 +21,8 @@ class Website extends Model
         'logo_path',
         'favicon_path',
         'tokens_json',
+        'header_json',
+        'footer_json',
         'site_languages',
         'default_locale',
         'status',
@@ -31,6 +33,8 @@ class Website extends Model
     {
         return [
             'tokens_json' => 'array',
+            'header_json' => 'array',
+            'footer_json' => 'array',
             'site_languages' => 'array',
             'published_at' => 'datetime',
         ];

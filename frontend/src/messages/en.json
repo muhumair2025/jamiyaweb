@@ -410,6 +410,7 @@
       "posts": "Posts",
       "media": "Media library",
       "theme": "Theme",
+      "layout": "Header & footer",
       "sections": "Sections",
       "seo": "SEO",
       "domain": "Domain",
@@ -500,41 +501,7 @@
       "subtitle": "Each theme is designed for your kind of website. You can change colours, typography and content in the next step.",
       "submit": "Continue",
       "back": "Back",
-      "selectedLabel": "Selected",
-      "themes": {
-        "compassion": {
-          "name": "Compassion",
-          "tagline": "Donation-first layout with campaign hero & impact stats."
-        },
-        "mercy": {
-          "name": "Mercy",
-          "tagline": "Calm, professional charity site with zakat calculator."
-        },
-        "hope": {
-          "name": "Hope",
-          "tagline": "Story-led layout with photo essays from the field."
-        },
-        "unity": {
-          "name": "Unity",
-          "tagline": "Community-focused layout with volunteer signup."
-        },
-        "wisdom": {
-          "name": "Wisdom",
-          "tagline": "Academic, calm layout for fatwas, books and lectures."
-        },
-        "light": {
-          "name": "Light",
-          "tagline": "Minimal scholar portfolio — type-first design."
-        },
-        "madinah": {
-          "name": "Madinah",
-          "tagline": "Traditional madrasah layout with class enrolment."
-        },
-        "hikmah": {
-          "name": "Hikmah",
-          "tagline": "Modern academic layout with Quran reader integration."
-        }
-      }
+      "selectedLabel": "Selected"
     },
     "customize": {
       "eyebrow": "Step 3 of 3 — almost done",

@@ -11,7 +11,8 @@ export type FieldType =
   | "boolean"
   | "color"
   | "image"
-  | "select";
+  | "select"
+  | "repeater";
 
 export interface SelectOption {
   value: string;
@@ -43,6 +44,18 @@ export interface FieldConfig {
   defaultValue: unknown;
   /** Whether null is an acceptable value (impacts Zod resolver). */
   nullable?: boolean;
+
+  // ─── Repeater-only ────────────────────────────────────────────────
+  /** Field configs for ONE item inside the repeater (a sub-form). */
+  itemFields?: FieldConfig[];
+  /** Optional template for the "Add item" button — defaults to `Add ${label}`. */
+  addLabel?: string;
+  /** Optional title shown on each collapsed item card — supports `{index}` and
+   *  `{<field-id>}` substitutions, e.g. "Program {index}: {title}". */
+  itemLabel?: string;
+  /** Per-item defaults used when adding a new item; falls back to deriving
+   *  from `itemFields[].defaultValue`. */
+  itemDefaults?: Record<string, unknown>;
 }
 
 /**

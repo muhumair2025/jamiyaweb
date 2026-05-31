@@ -76,15 +76,86 @@ class WebsiteCreator
             'logo_path' => $overrides['logo_path'] ?? $user->logo_path,
             'favicon_path' => $overrides['favicon_path'] ?? $user->favicon_path,
             'tokens_json' => $tokens ?: null,
+            'header_json' => $this->materialiseAreaInstance($theme->default_header_json, 'header'),
+            'footer_json' => $this->materialiseAreaInstance($theme->default_footer_json, 'footer'),
             'site_languages' => $siteLanguages,
             'default_locale' => $defaultLocale,
             'status' => 'draft',
         ]);
 
-        // ─── Bootstrap homepage from theme's section list ─
-        $this->createHomepage($website, $theme);
+        // ─── Bootstrap pages ──────────────────────────────
+        // If the theme ships multi-page defaults, seed every entry.
+        // Otherwise fall back to a single homepage built from the theme's
+        // section pivot — the original behaviour for the Starter theme.
+        $defaultPages = $theme->default_pages_json;
+        if (is_array($defaultPages) && count($defaultPages) > 0) {
+            $this->createPagesFromTheme($website, $defaultPages);
+        } else {
+            $this->createHomepage($website, $theme);
+        }
 
         return $website;
+    }
+
+    /**
+     * Materialise a theme's default header/footer template into a real
+     * SectionInstance with a fresh uuid — keeps element-style overrides
+     * keyed by id from one tenant colliding with another.
+     */
+    private function materialiseAreaInstance(?array $template, string $kind): ?array
+    {
+        if (! is_array($template)) {
+            return null;
+        }
+        $type = $template['type'] ?? "site-{$kind}";
+        return [
+            'id' => "{$kind}-".Str::lower(Str::random(8)),
+            'type' => $type,
+            'settings' => $template['settings'] ?? [],
+            'style' => $template['style'] ?? null,
+            'elements' => $template['elements'] ?? null,
+        ];
+    }
+
+    /**
+     * Seed every page in the theme's default_pages_json. Each entry shape:
+     *   slug => [
+     *     'title'       => 'Page title',
+     *     'is_homepage' => bool,
+     *     'sort_order'  => int,
+     *     'sections'    => [ ['type' => slug, 'settings' => [...]], ... ],
+     *     'seo'         => ['title' => ..., 'description' => ...] (optional)
+     *   ]
+     *
+     * Section ids are freshly generated so two tenants on the same theme
+     * never share a section id (element-style overrides key on it).
+     */
+    private function createPagesFromTheme(Website $website, array $pages): void
+    {
+        foreach ($pages as $slug => $payload) {
+            $sections = array_map(
+                fn (array $s) => [
+                    'id' => (string) Str::uuid(),
+                    'type' => $s['type'],
+                    'settings' => $s['settings'] ?? [],
+                ],
+                $payload['sections'] ?? []
+            );
+
+            Page::create([
+                'website_id' => $website->id,
+                'slug' => is_string($slug) ? $slug : ($payload['slug'] ?? 'untitled'),
+                'title' => $payload['title'] ?? 'Untitled',
+                'content_json' => ['sections' => $sections],
+                'seo_json' => $payload['seo'] ?? [
+                    'title' => $payload['title'] ?? $website->site_name,
+                    'description' => $website->tagline,
+                ],
+                'is_homepage' => (bool) ($payload['is_homepage'] ?? false),
+                'sort_order' => (int) ($payload['sort_order'] ?? 0),
+                'status' => 'draft',
+            ]);
+        }
     }
 
     /**

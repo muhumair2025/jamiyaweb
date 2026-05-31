@@ -37,6 +37,13 @@ interface JsonSchemaProperty {
   maximum?: number;
   multipleOf?: number;
   placeholder?: string;
+  /** For repeater fields (`type: "array"`). */
+  items?: JsonSchemaRoot;
+  minItems?: number;
+  maxItems?: number;
+  /** Repeater-only extras. */
+  addLabel?: string;
+  itemLabel?: string;
 }
 
 interface JsonSchemaRoot {
@@ -76,6 +83,18 @@ export function schemaToFields(
     const options =
       fieldType === "select" ? extractSelectOptions(prop) : undefined;
 
+    // Recursive build for repeaters — itemFields is the FieldConfig[] of
+    // ONE item's sub-form (the same renderer + Zod pipeline drives it).
+    let itemFields: FieldConfig[] | undefined;
+    let itemDefaults: Record<string, unknown> | undefined;
+    if (fieldType === "repeater" && prop.items) {
+      itemFields = schemaToFields(prop.items, undefined);
+      itemDefaults = {};
+      for (const sub of itemFields) {
+        itemDefaults[sub.id] = sub.defaultValue;
+      }
+    }
+
     fields.push({
       id,
       type: fieldType,
@@ -85,12 +104,16 @@ export function schemaToFields(
       help: prop.description,
       minLength: prop.minLength,
       maxLength: prop.maxLength,
-      min: prop.minimum,
-      max: prop.maximum,
+      min: prop.minimum ?? prop.minItems,
+      max: prop.maximum ?? prop.maxItems,
       step: prop.multipleOf,
       options,
       defaultValue,
       nullable: prop.nullable === true,
+      itemFields,
+      itemDefaults,
+      addLabel: prop.addLabel,
+      itemLabel: prop.itemLabel,
     });
   }
 
@@ -105,6 +128,11 @@ function inferFieldType(id: string, prop: JsonSchemaProperty): FieldType {
 
   if (t === "boolean") return "boolean";
   if (t === "number" || t === "integer") return "number";
+
+  // Array of objects → repeater (with its own sub-schema)
+  if (t === "array" && prop.items && prop.items.properties) {
+    return "repeater";
+  }
 
   // string-y from here on
   if (Array.isArray(prop.enum) && prop.enum.length > 0) return "select";
@@ -154,6 +182,8 @@ function fallbackDefault(t: FieldType): unknown {
       return false;
     case "number":
       return 0;
+    case "repeater":
+      return [];
     default:
       return "";
   }

@@ -3,6 +3,7 @@ import { BooleanField } from "./boolean";
 import { ColorField } from "./color";
 import { ImageField } from "./image";
 import { NumberField } from "./number";
+import { RepeaterField } from "./repeater";
 import { SelectField } from "./select";
 import { TextField } from "./text";
 import { TextareaField } from "./textarea";
@@ -27,6 +28,7 @@ const WIDGETS: Record<FieldType, ComponentType<FieldWidgetProps>> = {
   color: ColorField,
   image: ImageField,
   select: SelectField,
+  repeater: RepeaterField,
 };
 
 export function getFieldWidget(

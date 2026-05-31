@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\FormController;
 use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\PublicSiteController;
@@ -23,6 +24,9 @@ Route::get('/sections/{slug}', [SectionController::class, 'show']);
 Route::get('/public/sites/by-subdomain/{subdomain}', [PublicSiteController::class, 'show']);
 Route::get('/public/sites/by-subdomain/{subdomain}/pages/{slug}', [PublicSiteController::class, 'showPage']);
 
+// Public form submission — rate-limited + honeypot inside the controller.
+Route::post('/public/sites/by-subdomain/{subdomain}/forms', [FormController::class, 'store']);
+
 // ─── Authenticated routes ─────────────────────────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', fn (Request $request) => $request->user()->only([
@@ -41,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Websites (one per user in MVP)
     Route::get('/websites/me', [WebsiteController::class, 'me']);
     Route::post('/websites', [WebsiteController::class, 'store']);
+    Route::patch('/websites/{website}', [WebsiteController::class, 'update']);
     Route::post('/websites/{website}/publish', [WebsiteController::class, 'publish']);
     Route::post('/websites/{website}/unpublish', [WebsiteController::class, 'unpublish']);
 

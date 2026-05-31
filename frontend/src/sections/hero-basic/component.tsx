@@ -1,23 +1,51 @@
 import { z } from "zod";
-import type { SectionComponentProps } from "@/engine/component-registry";
-import { tokenVar } from "@/engine/core/tokens";
-import { EngineElement } from "@/engine/element/EngineElement";
+import type {
+  SectionComponentProps,
+  SectionVariant,
+} from "@/engine/component-registry";
+import { imageValueSchema } from "@/engine/image-value";
+import { HeroClassic } from "./variants/classic";
+import { HeroCinematic } from "./variants/cinematic";
+import { HeroMinimal } from "./variants/minimal";
+import { HeroSlider } from "./variants/slider";
+import {
+  ClassicThumbnail,
+  CinematicThumbnail,
+  MinimalThumbnail,
+  SliderThumbnail,
+} from "./variants/thumbnails";
 
 /**
  * Hero — Basic
  *
- * Element ids exposed to the editor:
- *   • background  (kind: background) — section background + arabesque overlay
- *   • container   (kind: container)  — content stack (max-width, gap, padding)
- *   • eyebrow     (kind: text)       — small label above the title
- *   • title       (kind: heading)    — H1
- *   • subtitle    (kind: text)       — paragraph
- *   • cta         (kind: button)     — primary call-to-action link
+ * Four pre-built visual variants ship with this section:
+ *   • classic    — refined centered hero with eyebrow chip, gilded divider,
+ *                  display heading, premium CTA. Trustworthy everyday hero.
+ *   • cinematic  — full-bleed, near-viewport-height dramatic hero with a
+ *                  display-scale title and a bottom row of subtitle + CTA.
+ *   • minimal    — type-led, whitespace-driven, neutral surface, underline
+ *                  CTA. Editorial feel; works perfectly without any image.
+ *   • slider     — multi-slide carousel with autoplay, prev/next, dots,
+ *                  and a progress hairline. Each slide gets its own
+ *                  image + copy via `settings.slides`.
  *
- * Click any of these in the builder iframe → that element's style controls
- * appear in the right panel. Click outside any element → whole-section
- * Style tab.
+ * The user picks one in the Variants tab; it's persisted in `settings.variant`.
+ * Every variant exposes the same EngineElement ids (background, container,
+ * eyebrow, title, subtitle, cta) so element-level style overrides — including
+ * the background itself — survive a swap.
  */
+
+/** One slide in the slider variant. */
+const HeroSlideSchema = z.object({
+  eyebrow: z.string().default(""),
+  title: z.string().default(""),
+  subtitle: z.string().default(""),
+  cta_label: z.string().default(""),
+  cta_href: z.string().default("#"),
+  background_image: imageValueSchema,
+});
+
+export type HeroSlide = z.infer<typeof HeroSlideSchema>;
 
 export const HeroBasicSchema = z.object({
   eyebrow: z.string().default(""),
@@ -25,102 +53,65 @@ export const HeroBasicSchema = z.object({
   subtitle: z.string().default(""),
   cta_label: z.string().default(""),
   cta_href: z.string().default("#"),
-  background_image: z.string().nullable().optional(),
+  background_image: imageValueSchema,
   alignment: z.enum(["start", "center"]).default("center"),
+  variant: z
+    .enum(["classic", "cinematic", "minimal", "slider"])
+    .default("classic"),
+
+  // Slider-only fields. They're always present in the schema so the form
+  // pipeline is stable, but they only have an effect when variant="slider".
+  slides: z.array(HeroSlideSchema).default([]),
+  autoplay: z.boolean().default(true),
+  interval_ms: z.number().int().min(2000).max(20000).default(5500),
+  transition: z.enum(["fade", "slide"]).default("fade"),
 });
 
 export type HeroBasicSettings = z.infer<typeof HeroBasicSchema>;
+
+/** Variants exposed to the builder's Variants tab. */
+export const heroBasicVariants: SectionVariant[] = [
+  {
+    id: "classic",
+    label: "Classic",
+    description: "Refined, centered. The trustworthy everyday hero.",
+    thumbnail: <ClassicThumbnail />,
+  },
+  {
+    id: "cinematic",
+    label: "Cinematic",
+    description: "Full-bleed, display-scale. Dramatic editorial impact.",
+    thumbnail: <CinematicThumbnail />,
+  },
+  {
+    id: "minimal",
+    label: "Minimal",
+    description: "Clean, type-led, generous whitespace. Quiet confidence.",
+    thumbnail: <MinimalThumbnail />,
+  },
+  {
+    id: "slider",
+    label: "Slider",
+    description:
+      "Multi-slide carousel with autoplay, dots, and a progress bar.",
+    thumbnail: <SliderThumbnail />,
+  },
+];
 
 export default function HeroBasic({
   settings,
 }: SectionComponentProps<HeroBasicSettings>) {
   const safe = HeroBasicSchema.parse(settings);
-  const isCenter = safe.alignment === "center";
 
-  return (
-    <EngineElement
-      el="background"
-      kind="background"
-      as="section"
-      className="relative overflow-hidden px-6 py-20 sm:py-28 lg:py-36"
-      style={{
-        // Defaults to the heroic gradient; user-set section bg/text wins.
-        background: `var(--jw-section-bg, ${
-          safe.background_image
-            ? `linear-gradient(135deg, ${tokenVar("color.primary")} 0%, rgba(0,0,0,0.55) 100%), url(${safe.background_image}) center/cover`
-            : `linear-gradient(135deg, ${tokenVar("color.primary")} 0%, ${tokenVar("color.accent")} 130%)`
-        })`,
-        color: "var(--jw-section-text, #ffffff)",
-      }}
-    >
-      {/* Decorative arabesque pattern */}
-      <div aria-hidden className="absolute inset-0 bg-arabesque opacity-30" />
-
-      <EngineElement
-        el="container"
-        kind="container"
-        className={`relative mx-auto max-w-3xl ${
-          isCenter ? "text-center" : "text-start"
-        }`}
-        style={{ fontFamily: `var(--jw-font-heading, inherit)` }}
-      >
-        {safe.eyebrow && (
-          <EngineElement
-            el="eyebrow"
-            kind="text"
-            as="span"
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider opacity-90 backdrop-blur"
-          >
-            {safe.eyebrow}
-          </EngineElement>
-        )}
-
-        <EngineElement
-          el="title"
-          kind="heading"
-          as="h1"
-          className="mt-6 text-balance font-semibold leading-tight tracking-tight"
-          style={{
-            color: "var(--jw-section-heading, inherit)",
-            fontSize: "calc(2.5rem * var(--jw-section-heading-scale, 1))",
-          }}
-        >
-          {safe.title}
-        </EngineElement>
-
-        {safe.subtitle && (
-          <EngineElement
-            el="subtitle"
-            kind="text"
-            as="p"
-            className="mx-auto mt-5 max-w-2xl leading-relaxed opacity-85"
-            style={{
-              fontFamily: `var(--jw-font-body, inherit)`,
-              fontSize: "calc(1.05rem * var(--jw-section-body-scale, 1))",
-            }}
-          >
-            {safe.subtitle}
-          </EngineElement>
-        )}
-
-        {safe.cta_label && (
-          <div className={`mt-8 ${isCenter ? "" : "flex justify-start"}`}>
-            <EngineElement
-              el="cta"
-              kind="button"
-              as="a"
-              className="inline-flex h-12 items-center gap-2 rounded-full px-6 text-sm font-semibold shadow-lg transition-transform hover:scale-[1.02]"
-              style={{
-                background: tokenVar("color.accent"),
-                color: "#fff",
-              }}
-              {...({ href: safe.cta_href || "#" } as object)}
-            >
-              {safe.cta_label}
-            </EngineElement>
-          </div>
-        )}
-      </EngineElement>
-    </EngineElement>
-  );
+  switch (safe.variant) {
+    case "cinematic":
+      return <HeroCinematic settings={safe} />;
+    case "minimal":
+      return <HeroMinimal settings={safe} />;
+    case "slider":
+      return <HeroSlider settings={safe} />;
+    case "classic":
+    default:
+      return <HeroClassic settings={safe} />;
+  }
 }

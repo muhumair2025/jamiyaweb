@@ -6,6 +6,7 @@ import {
   Image as ImageIcon,
   Palette,
   Layers,
+  LayoutPanelTop,
   Search,
   Globe,
   Languages,
@@ -56,7 +57,8 @@ export const NAV_GROUPS: DashNavGroup[] = [
   {
     key: "design",
     items: [
-      { key: "theme", href: "/theme", icon: Palette, comingSoon: true },
+      { key: "theme", href: "/theme", icon: Palette },
+      { key: "layout", href: "/layout-areas", icon: LayoutPanelTop },
       { key: "sections", href: "/sections", icon: Layers, comingSoon: true },
     ],
   },

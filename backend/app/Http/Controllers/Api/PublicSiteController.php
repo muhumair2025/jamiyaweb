@@ -94,6 +94,8 @@ class PublicSiteController extends Controller
                     'logo_path' => $website->logo_path,
                     'favicon_path' => $website->favicon_path,
                     'tokens' => $website->tokens_json,
+                    'header' => $website->header_json,
+                    'footer' => $website->footer_json,
                     'site_languages' => $website->site_languages,
                     'default_locale' => $website->default_locale,
                     'status' => $website->status,

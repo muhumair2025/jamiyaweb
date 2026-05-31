@@ -28,14 +28,24 @@ export default async function DashboardLayout(
   if (step !== "done") redirect(onboardingHref(locale, step));
 
   const website = await getCurrentWebsite();
-  const websiteForNav = website
-    ? {
-        id: website.id,
-        site_name: website.site_name,
-        subdomain: website.subdomain,
-        status: website.status,
-      }
-    : null;
+
+  // Edge case: user has `onboarding_completed_at` set but the website
+  // creation failed (network blip, transient DB error during the auto-
+  // provisioning step). Without a website, the dashboard is unusable —
+  // sidebar context card, builder link, theme switcher all assume one
+  // exists. Send the user back to the customise step so re-submitting
+  // re-runs WebsiteCreator (idempotent — it no-ops if a website appears
+  // in the meantime).
+  if (!website) {
+    redirect(`/${locale}/onboarding/customize?reason=missing-website`);
+  }
+
+  const websiteForNav = {
+    id: website.id,
+    site_name: website.site_name,
+    subdomain: website.subdomain,
+    status: website.status,
+  };
 
   const userForNav = {
     name: user.name,

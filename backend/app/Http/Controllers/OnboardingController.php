@@ -39,8 +39,17 @@ class OnboardingController extends Controller
 
     public function setTheme(Request $request): JsonResponse
     {
+        // `theme_id` is the theme's DB slug (we store it on `selected_theme_id`
+        // for the user). Must exist and be active — silently letting a typo'd
+        // slug through would surface as a 500 later when WebsiteCreator
+        // calls Theme::where('slug', …)->firstOrFail().
         $validated = $request->validate([
-            'theme_id' => ['required', 'string', 'max:64'],
+            'theme_id' => [
+                'required',
+                'string',
+                'max:64',
+                'exists:themes,slug',
+            ],
         ]);
 
         $user = $request->user();

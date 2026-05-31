@@ -1,19 +1,33 @@
 "use client";
 
+// Side-effect import: ensures the section registry is populated in the
+// PARENT window. The BuilderRenderer also imports this, but that runs inside
+// the preview iframe — a separate JS context. Without this line the parent's
+// `getSectionVariants(slug)` returns [] and the Variants tab never appears.
+import "@/sections/_register";
+
 import { useMemo, useState } from "react";
-import { ChevronLeft, MousePointerClick, Palette, Settings2 } from "lucide-react";
+import {
+  ChevronLeft,
+  LayoutTemplate,
+  MousePointerClick,
+  Palette,
+  Settings2,
+} from "lucide-react";
 import { useBuilderStore } from "@/builder/store";
+import { getSectionVariants } from "@/engine/component-registry";
 import { SectionForm } from "@/engine/forms/section-form";
 import type { SectionMeta } from "@/engine/types";
 import { cn } from "@/lib/utils";
 import { StylePanel } from "./style-panel";
 import { ElementStylePanel } from "./element-style-panel";
+import { VariantsPanel } from "./variants-panel";
 
 interface Props {
   sectionsCatalog: SectionMeta[];
 }
 
-type SectionTab = "content" | "style";
+type SectionTab = "content" | "style" | "variants";
 
 /**
  * Right pane — context-aware editor.
@@ -43,6 +57,16 @@ export function BuilderFormPanel({ sectionsCatalog }: Props) {
       sectionsCatalog.find((s) => s.slug === selectedSection.type) ?? null
     );
   }, [selectedSection, sectionsCatalog]);
+
+  const hasVariants = useMemo(() => {
+    if (!selectedSection) return false;
+    return getSectionVariants(selectedSection.type).length > 1;
+  }, [selectedSection]);
+
+  // If a non-existent tab is active (e.g. switched to a section with no
+  // variants), fall back to Content so the panel never shows blank.
+  const effectiveTab: SectionTab =
+    tab === "variants" && !hasVariants ? "content" : tab;
 
   if (!selection || !selectedSection || !sectionMeta) {
     return <EmptyState />;
@@ -112,24 +136,33 @@ export function BuilderFormPanel({ sectionsCatalog }: Props) {
         {/* Tabs */}
         <div className="-mb-px mt-3 flex gap-1">
           <TabButton
-            active={tab === "content"}
+            active={effectiveTab === "content"}
             onClick={() => setTab("content")}
             icon={<Settings2 className="h-3.5 w-3.5" />}
           >
             Content
           </TabButton>
           <TabButton
-            active={tab === "style"}
+            active={effectiveTab === "style"}
             onClick={() => setTab("style")}
             icon={<Palette className="h-3.5 w-3.5" />}
           >
             Style
           </TabButton>
+          {hasVariants && (
+            <TabButton
+              active={effectiveTab === "variants"}
+              onClick={() => setTab("variants")}
+              icon={<LayoutTemplate className="h-3.5 w-3.5" />}
+            >
+              Variants
+            </TabButton>
+          )}
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
-        {tab === "content" ? (
+        {effectiveTab === "content" && (
           <SectionForm
             key={`content-${selectedSection.id}`}
             section={sectionMeta}
@@ -139,11 +172,24 @@ export function BuilderFormPanel({ sectionsCatalog }: Props) {
               updateSettings(selectedSection.id, values);
             }}
           />
-        ) : (
+        )}
+        {effectiveTab === "style" && (
           <StylePanel
             key={`style-${selectedSection.id}`}
             sectionId={selectedSection.id}
             style={selectedSection.style}
+          />
+        )}
+        {effectiveTab === "variants" && (
+          <VariantsPanel
+            key={`variants-${selectedSection.id}`}
+            sectionId={selectedSection.id}
+            sectionSlug={selectedSection.type}
+            currentVariant={
+              typeof selectedSection.settings.variant === "string"
+                ? (selectedSection.settings.variant as string)
+                : null
+            }
           />
         )}
       </div>

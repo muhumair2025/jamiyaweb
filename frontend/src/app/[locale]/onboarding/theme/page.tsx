@@ -1,10 +1,22 @@
 import { redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { OnboardingShell } from "@/components/auth/onboarding-shell";
-import { ThemeForm } from "@/components/auth/theme-form";
+import { ThemeForm, type OnboardingTheme } from "@/components/auth/theme-form";
+import { apiFetch } from "@/lib/api";
 import { getCurrentUser } from "@/lib/auth";
 import { nextOnboardingStep, onboardingHref } from "@/lib/onboarding";
-import { themesFor } from "@/lib/themes";
+
+interface ApiTheme {
+  id: number;
+  slug: string;
+  name: string;
+  version: string | null;
+  preview_url: string | null;
+  manifest: Record<string, unknown> | null;
+  tokens: Record<string, { default: string }> | null;
+  supported_types: string[] | null;
+  is_default: boolean;
+}
 
 export default async function ThemeOnboardingPage(
   props: PageProps<"/[locale]/onboarding/theme">
@@ -15,18 +27,33 @@ export default async function ThemeOnboardingPage(
   const user = await getCurrentUser();
   if (!user) redirect(`/${locale}/login`);
 
-  // Must have picked a website type first
   if (!user.website_type) {
     redirect(`/${locale}/onboarding/website-type`);
   }
-  // Already finished? jump to next step / dashboard
   if (user.onboarding_completed_at) {
     redirect(onboardingHref(locale, nextOnboardingStep(user)));
   }
 
   const t = await getTranslations("onboarding.theme");
   const tSteps = await getTranslations("onboarding.steps");
-  const themes = themesFor(user.website_type);
+
+  // Real themes from the database, filtered by the user's site type.
+  // Public endpoint — no auth needed for the catalogue.
+  const apiThemes = await apiFetch<{ data: ApiTheme[] }>(
+    `/api/themes?website_type=${encodeURIComponent(user.website_type)}`
+  )
+    .then((r) => r.data)
+    .catch(() => [] as ApiTheme[]);
+
+  const themes: OnboardingTheme[] = apiThemes.map((t) => ({
+    slug: t.slug,
+    name: t.name,
+    tagline: extractDescription(t.manifest),
+    primary: tokenValue(t.tokens, "color.primary") ?? "#1f6452",
+    accent: tokenValue(t.tokens, "color.accent") ?? "#c18f2c",
+    background: tokenValue(t.tokens, "color.background") ?? "#fbf7ee",
+    isDefault: t.is_default,
+  }));
 
   return (
     <OnboardingShell
@@ -48,4 +75,16 @@ export default async function ThemeOnboardingPage(
       />
     </OnboardingShell>
   );
+}
+
+function tokenValue(
+  tokens: Record<string, { default: string }> | null,
+  key: string
+): string | null {
+  return tokens?.[key]?.default ?? null;
+}
+
+function extractDescription(manifest: Record<string, unknown> | null): string {
+  const d = manifest?.description;
+  return typeof d === "string" ? d : "";
 }
